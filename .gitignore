@@ -38,15 +38,11 @@ checkpoints/
 *.pth
 *.ckpt
 *.safetensors
-*.npz
 
 # Basin2Vec datasets and embeddings
 data/
 datasets/
 outputs/
-evaluation_outputs/
-embeddings/
-*.npz
 *.npy
 *.h5
 *.hdf5
@@ -91,7 +87,6 @@ events.out.tfevents.*
 **/predictions*.csv
 
 # Embeddings and scientific data
-*.npz
 *.npy
 *.zarr
 *.h5
