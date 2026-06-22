@@ -1,0 +1,65 @@
+ .gitignore                                                                                                             |   113 [32m+[m
+ basin2vec/app/app.py                                                                                                   |   539 [32m+[m
+ basin2vec/app/cloudflared                                                                                              |   Bin [31m0[m -> [32m39289207[m bytes
+ basin2vec/app/geojson.py                                                                                               |    23 [32m+[m
+ basin2vec/app/static/index.html                                                                                        |   347 [32m+[m
+ basin2vec/emb/config/dataset_config.yaml                                                                               |    67 [32m+[m
+ basin2vec/emb/config/training_step5/norm_stats.json                                                                    |   106 [32m+[m
+ basin2vec/emb/config/training_step5/plots/agriculture_normalized.png                                                   |   Bin [31m0[m -> [32m18026[m bytes
+ basin2vec/emb/config/training_step5/plots/agriculture_raw.png                                                          |   Bin [31m0[m -> [32m16502[m bytes
+ basin2vec/emb/config/training_step5/plots/bdod_normalized.png                                                          |   Bin [31m0[m -> [32m24343[m bytes
+ basin2vec/emb/config/training_step5/plots/bdod_raw.png                                                                 |   Bin [31m0[m -> [32m25177[m bytes
+ basin2vec/emb/config/training_step5/plots/clay_normalized.png                                                          |   Bin [31m0[m -> [32m24348[m bytes
+ basin2vec/emb/config/training_step5/plots/clay_raw.png                                                                 |   Bin [31m0[m -> [32m24817[m bytes
+ basin2vec/emb/config/training_step5/plots/dem_normalized.png                                                           |   Bin [31m0[m -> [32m20880[m bytes
+ basin2vec/emb/config/training_step5/plots/dem_raw.png                                                                  |   Bin [31m0[m -> [32m20266[m bytes
+ basin2vec/emb/config/training_step5/plots/hydraulic_conductivity_normalized.png                                        |   Bin [31m0[m -> [32m28701[m bytes
+ basin2vec/emb/config/training_step5/plots/hydraulic_conductivity_raw.png                                               |   Bin [31m0[m -> [32m28626[m bytes
+ basin2vec/emb/config/training_step5/plots/permeability_normalized.png                                                  |   Bin [31m0[m -> [32m18272[m bytes
+ basin2vec/emb/config/training_step5/plots/permeability_raw.png                                                         |   Bin [31m0[m -> [32m19952[m bytes
+ basin2vec/emb/config/training_step5/plots/pet_normalized.png                                                           |   Bin [31m0[m -> [32m23330[m bytes
+ basin2vec/emb/config/training_step5/plots/pet_raw.png                                                                  |   Bin [31m0[m -> [32m23777[m bytes
+ basin2vec/emb/config/training_step5/plots/population_normalized.png                                                    |   Bin [31m0[m -> [32m26552[m bytes
+ basin2vec/emb/config/training_step5/plots/population_raw.png                                                           |   Bin [31m0[m -> [32m26022[m bytes
+ basin2vec/emb/config/training_step5/plots/precip_normalized.png                                                        |   Bin [31m0[m -> [32m24942[m bytes
+ basin2vec/emb/config/training_step5/plots/precip_raw.png                                                               |   Bin [31m0[m -> [32m26180[m bytes
+ basin2vec/emb/config/training_step5/plots/sand_normalized.png                                                          |   Bin [31m0[m -> [32m24436[m bytes
+ basin2vec/emb/config/training_step5/plots/sand_raw.png                                                                 |   Bin [31m0[m -> [32m24569[m bytes
+ basin2vec/emb/config/training_step5/plots/slit_normalized.png                                                          |   Bin [31m0[m -> [32m23735[m bytes
+ basin2vec/emb/config/training_step5/plots/slit_raw.png                                                                 |   Bin [31m0[m -> [32m23958[m bytes
+ basin2vec/emb/config/training_step5/plots/soc_normalized.png                                                           |   Bin [31m0[m -> [32m24350[m bytes
+ basin2vec/emb/config/training_step5/plots/soc_raw.png                                                                  |   Bin [31m0[m -> [32m23807[m bytes
+ basin2vec/emb/config/training_step5/plots/swdown_normalized.png                                                        |   Bin [31m0[m -> [32m24693[m bytes
+ basin2vec/emb/config/training_step5/plots/swdown_raw.png                                                               |   Bin [31m0[m -> [32m23185[m bytes
+ basin2vec/emb/config/training_step5/plots/tmean_normalized.png                                                         |   Bin [31m0[m -> [32m24267[m bytes
+ basin2vec/emb/config/training_step5/plots/tmean_raw.png                                                                |   Bin [31m0[m -> [32m24564[m bytes
+ basin2vec/emb/config/training_step5/plots/wind_normalized.png                                                          |   Bin [31m0[m -> [32m24464[m bytes
+ basin2vec/emb/config/training_step5/plots/wind_raw.png                                                                 |   Bin [31m0[m -> [32m22323[m bytes
+ basin2vec/emb/config/training_step5/sample_index_meta.json                                                             |    53 [32m+[m
+ basin2vec/emb/evaluation/alphaearth_embeddings/alphaearth_baseline_metadata.json                                       |    26 [32m+[m
+ basin2vec/emb/evaluation/alphaearth_embeddings/alphaearth_extraction_metadata_scale500m.json                           |    95 [32m+[m
+ basin2vec/emb/evaluation/alphaearth_embeddings/tables/alphaearth_annual_basin_embeddings_2017_2024_scale500m_index.csv | 72537 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ basin2vec/emb/evaluation/alphaearth_embeddings/tables/alphaearth_failed_batches_scale500m.csv                          |     2 [32m+[m
+ basin2vec/emb/evaluation/alphaearth_embeddings/tables/alphaearth_failed_batches_scale500m_parallel.csv                 |    94 [32m+[m
+ basin2vec/emb/evaluation/alphaearth_embeddings/tables/alphaearth_failed_batches_scale500m_parallel_recovery_log.csv    |    94 [32m+[m
+ basin2vec/emb/evaluation/alphaearth_embeddings/tables/alphaearth_progress_scale500m.csv                                |    41 [32m+[m
+ basin2vec/emb/evaluation/alphaearth_embeddings/tables/alphaearth_progress_scale500m_parallel.csv                       |  9073 [32m+++++++++++[m
+ basin2vec/emb/evaluation/analysis_of_embeddings.ipynb                                                                  | 14792 [32m+++++++++++++++++[m
+ basin2vec/emb/evaluation/basin2vec_results_metadata.ipynb                                                              | 14821 [32m+++++++++++++++++[m
+ basin2vec/emb/evaluation/camels_loader.py                                                                              |   169 [32m+[m
+ basin2vec/emb/evaluation/extract_alphaearth.py                                                                         |   494 [32m+[m
+ basin2vec/emb/evaluation/extract_tessera.py                                                                            |  1114 [32m++[m
+ basin2vec/emb/evaluation/spatial_split.py                                                                              |  2781 [32m++++[m
+ basin2vec/emb/evaluation/streamflow_regime.py                                                                          |   496 [32m+[m
+ basin2vec/emb/evaluation/temporal_split.py                                                                             |  2596 [32m+++[m
+ basin2vec/emb/evaluation/train_eval_camels_lstm.py                                                                     |  1880 [32m+++[m
+ basin2vec/emb/src/attention_encoder_monthly.py                                                                         |   534 [32m+[m
+ basin2vec/emb/src/basin2vec_dataset_grouped.py                                                                         |   271 [32m+[m
+ basin2vec/emb/src/basin_batch_sampler.py                                                                               |   229 [32m+[m
+ basin2vec/emb/src/build_grouped_monthly_static_zarr.py                                                                 |   628 [32m+[m
+ basin2vec/emb/src/evaluate_embddings_monthly.py                                                                        |  2042 [32m+++[m
+ basin2vec/emb/src/hydro_augmentations_monthly.py                                                                       |   174 [32m+[m
+ basin2vec/emb/src/hydrology_aware_contrastive_loss.py                                                                  |   316 [32m+[m
+ basin2vec/emb/src/train_basin2vec_monthly_hclv4.py                                                                     |   868 [32m+[m
+ basin2vec/environment.txt                                                                                              |    15 [32m+[m
+ 64 files changed, 127430 insertions(+)
