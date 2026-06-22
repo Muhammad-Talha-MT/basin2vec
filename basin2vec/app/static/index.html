@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Basin2Vec Similarity Explorer</title>
+
+  <link rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    #container {
+      display: flex;
+      height: 100vh;
+    }
+
+    #map {
+      flex: 1;
+    }
+
+    #sidebar {
+      width: 260px;
+      overflow-y: auto;
+      border-left: 1px solid #ccc;
+      padding: 10px;
+      background: #f9f9f9;
+    }
+
+    #sidebar h3 {
+      margin-top: 0;
+    }
+
+    #basinList div {
+      padding: 6px;
+      cursor: pointer;
+      border-bottom: 1px solid #eee;
+      font-size: 13px;
+    }
+
+    #basinList div:hover {
+      background: #e0e0e0;
+    }
+
+    #basinList .active {
+      background: #d0e8ff;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+<div id="container">
+  <div id="map"></div>
+
+  <div id="sidebar">
+    <h4>Embedding Mode</h4>
+
+        <label>
+        <input type="radio" name="mode" value="avg" checked>
+        Averaged
+        </label><br>
+
+        <label>
+        <input type="radio" name="mode" value="year">
+        Year
+        </label>
+
+        <div id="yearContainer" style="margin-top:10px; display:none;">
+        <input type="range" id="yearSlider">
+        <div>Year: <span id="yearLabel"></span></div>
+        </div>
+
+        <hr>
+
+    <h3>Basins</h3>
+    <div id="basinList"></div>
+  </div>
+</div>
+
+<script>
+
+// ----------------------------------------------------
+// Map Setup
+// ----------------------------------------------------
+
+var map = L.map('map').setView([39, -98], 4);
+let currentMode = "avg";
+let currentYear = null;
+let availableYears = [];
+let selectedBasin = null;
+
+
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 18
+}).addTo(map);
+
+var geojson;  // global reference
+
+
+// ----------------------------------------------------
+// Viridis Color Function
+// ----------------------------------------------------
+
+function getColor(value) {
+
+    value = Math.max(0, Math.min(1, value));
+
+    const viridis = [
+        [68, 1, 84],
+        [59, 82, 139],
+        [33, 145, 140],
+        [94, 201, 97],
+        [253, 231, 37]
+    ];
+
+    const idx = value * (viridis.length - 1);
+    const lower = Math.floor(idx);
+    const upper = Math.min(lower + 1, viridis.length - 1);
+    const t = idx - lower;
+
+    const r = Math.round(viridis[lower][0] * (1 - t) + viridis[upper][0] * t);
+    const g = Math.round(viridis[lower][1] * (1 - t) + viridis[upper][1] * t);
+    const b = Math.round(viridis[lower][2] * (1 - t) + viridis[upper][2] * t);
+
+    return `rgb(${r},${g},${b})`;
+}
+
+
+// ----------------------------------------------------
+// Compute Similarity (Single Source of Truth)
+// ----------------------------------------------------
+
+function computeSimilarity(id) {
+    selectedBasin = id;
+
+    let url = `/similarity/${id}`;
+    if (currentMode === "year" && currentYear !== null) {
+        url += `?year=${currentYear}`;
+    }
+    fetch(url)
+    .then(res => res.json())
+    .then(simData => {
+
+        // Reset all sidebar highlights
+        document.querySelectorAll("#basinList div").forEach(el => {
+            el.classList.remove("active");
+        });
+
+        // Highlight selected sidebar item
+        const selectedItem = document.getElementById("basin-" + id);
+        if (selectedItem) {
+            selectedItem.classList.add("active");
+        }
+
+        geojson.eachLayer(function(l) {
+
+            const gid = l.feature.properties.GAGE_ID;
+            const val = simData[gid];
+
+            // Reset border
+            l.setStyle({
+                weight: 0.5,
+                color: "black"
+            });
+
+            // Apply similarity color
+            if (val !== undefined) {
+                l.setStyle({
+                    fillColor: getColor(val)
+                });
+            }
+
+            // Highlight selected basin
+            if (gid === id) {
+                l.setStyle({
+                    weight: 3,
+                    color: "red"
+                });
+                // Bring selected basin to top
+                l.bringToFront();
+
+                // Pan only (no crazy zoom)
+                map.panTo(l.getBounds().getCenter());
+            }
+
+        });
+
+    });
+}
+
+
+// ----------------------------------------------------
+// Load GeoJSON
+// ----------------------------------------------------
+
+fetch("/geojson")
+.then(res => res.json())
+.then(data => {
+
+    function defaultStyle() {
+        return {
+            fillColor: "#cccccc",
+            weight: 0.5,
+            color: "black",
+            fillOpacity: 0.8
+        };
+    }
+
+    function onEachFeature(feature, layer) {
+
+        layer.on("click", function() {
+            computeSimilarity(feature.properties.GAGE_ID);
+        });
+
+        layer.bindTooltip(`GAGE: ${feature.properties.GAGE_ID}`);
+    }
+
+    geojson = L.geoJson(data, {
+        style: defaultStyle,
+        onEachFeature: onEachFeature
+    }).addTo(map);
+
+    // Populate Sidebar
+    var basinListDiv = document.getElementById("basinList");
+
+    data.features
+        .sort((a, b) =>
+            a.properties.GAGE_ID.localeCompare(b.properties.GAGE_ID)
+        )
+        .forEach(function(feature) {
+
+            const id = feature.properties.GAGE_ID;
+
+            var item = document.createElement("div");
+            item.textContent = id;
+            item.id = "basin-" + id;
+
+            item.onclick = function() {
+                computeSimilarity(id);
+            };
+
+            basinListDiv.appendChild(item);
+        });
+
+});
+
+
+
+fetch("/years")
+.then(res => res.json())
+.then(data => {
+
+    availableYears = data.years;
+
+    const slider = document.getElementById("yearSlider");
+    const label = document.getElementById("yearLabel");
+
+    slider.min = 0;
+    slider.max = availableYears.length - 1;
+    slider.value = 0;
+
+    currentYear = availableYears[0];
+    label.textContent = currentYear;
+
+    slider.oninput = function() {
+
+        currentYear = availableYears[this.value];
+        label.textContent = currentYear;
+
+        // 🔥 Auto-recompute if basin selected
+        if (selectedBasin !== null) {
+            computeSimilarity(selectedBasin);
+        }
+    };
+
+
+});
+
+document.querySelectorAll('input[name="mode"]').forEach(radio => {
+    radio.onchange = function() {
+        if (selectedBasin !== null) {
+            computeSimilarity(selectedBasin);
+        }
+        currentMode = this.value;
+
+        const yearContainer = document.getElementById("yearContainer");
+
+        if (currentMode === "year") {
+            yearContainer.style.display = "block";
+        } else {
+            yearContainer.style.display = "none";
+        }
+    };
+});
+
+
+// ----------------------------------------------------
+// Legend
+// ----------------------------------------------------
+
+var legend = L.control({position: 'bottomleft'});
+
+legend.onAdd = function () {
+
+    var div = L.DomUtil.create('div');
+
+    div.innerHTML = `
+        <div style="
+            background: white;
+            padding: 10px;
+            box-shadow: 0 0 6px rgba(0,0,0,0.3);
+            font-size: 13px;
+        ">
+            <b>Similarity</b><br>
+            <div style="
+                width: 200px;
+                height: 15px;
+                margin-top: 5px;
+                background: linear-gradient(to right,
+                    #440154 0%,
+                    #3b528b 25%,
+                    #21918c 50%,
+                    #5ec962 75%,
+                    #fde725 100%);
+            "></div>
+            <div style="display:flex; justify-content:space-between;">
+                <span>Low</span>
+                <span>High</span>
+            </div>
+        </div>
+    `;
+
+    return div;
+};
+
+legend.addTo(map);
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,26 @@
+{
+  "alphaearth_years": [
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024
+  ],
+  "common_years": [
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024
+  ],
+  "n_basins": 9067,
+  "basins_gpkg": "/data/basin2vec/raw/gages-ii/geopackage/gages_basins.gpkg",
+  "index_parquet": "../config/training_step5/sample_index.parquet",
+  "basins_geojson": "evaluation_outputs/alphaearth_baseline/gages_basins_for_alphaearth_common_years.geojson"
+}

@@ -1,0 +1,67 @@
+zarr_root: "/data/basin2vec/cache/patches_step4"
+
+datasets:
+  - name: "land_cover"
+    type: "annual"
+    years: [1985, 1986, ..., 2024]
+
+  - name: "precip"
+    type: "annual"
+    years: [1985, 1986, ..., 2024]
+
+  - name: "vp"
+    type: "annual"
+    years: [1985, 1986, ..., 2024]
+
+  - name: "swe"
+    type: "annual"
+    years: [1985, 1986, ..., 2024]
+
+  - name: "swdown"
+    type: "annual"
+    years: [1985, 1986, ..., 2024]
+
+  - name: "tmean"
+    type: "annual"
+    years: [1985, 1986, ..., 2024]
+
+  - name: "wind"
+    type: "annual"
+    years: [1985, 1986, ..., 2024]
+
+  - name: "population"
+    type: "annual"
+    years: [2000]
+
+  - name: "pet"
+    type: "annual"
+    years: [1985, 1986, ..., 2024]
+
+  - name: "agriculture"
+    type: "static"
+
+  - name: "bdod"
+    type: "static"
+
+  - name: "clay"
+    type: "static"
+
+  - name: "sand"
+    type: "static"
+
+  - name: "slit"
+    type: "static"
+
+  - name: "soc"
+    type: "static"
+
+  - name: "dem"
+    type: "static"
+
+  - name: "permeability"
+    type: "static"
+
+  - name: "hydraulic_conductivity"
+    type: "static"
+
+allow_nearest_year: true   # IMPORTANT

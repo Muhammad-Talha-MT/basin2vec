@@ -1,0 +1,15 @@
+# Core
+numpy
+pandas
+pyyaml
+tqdm
+
+# ML / math
+scikit-learn
+torch
+torchvision
+torchaudio
+einops
+
+# Plotting (optional)
+matplotlib

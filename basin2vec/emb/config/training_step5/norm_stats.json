@@ -1,0 +1,106 @@
+{
+  "stats": {
+    "precip": {
+      "type": "log_minmax",
+      "min": 0.4227306842803955,
+      "max": 8.97240924835205,
+      "nodata_value": 0.0
+    },
+    "swdown": {
+      "type": "minmax",
+      "min": 130.71937561035156,
+      "max": 266.43389892578125,
+      "nodata_value": 0.0
+    },
+    "vp": {
+      "type": "log_minmax",
+      "min": 5.020648002624512,
+      "max": 7.839507579803467,
+      "nodata_value": 0.0
+    },
+    "swe": {
+      "type": "log_minmax",
+      "min": 6.8114480561139255e-15,
+      "max": 9.144009590148926,
+      "nodata_value": 0.0
+    },
+    "tmean": {
+      "type": "log_minmax",
+      "min": 5.574993133544922,
+      "max": 5.7024455070495605,
+      "nodata_value": 0.0
+    },
+    "wind": {
+      "type": "minmax",
+      "min": 1.663530945777893,
+      "max": 8.15723991394043,
+      "nodata_value": 0.0
+    },
+    "pet": {
+      "type": "minmax",
+      "min": 269.573486328125,
+      "max": 1874.0592041015625,
+      "nodata_value": 0.0
+    },
+    "population": {
+      "type": "log_minmax",
+      "min": 0.0,
+      "max": 6.167920112609863,
+      "nodata_value": 0.0
+    },
+    "agriculture": {
+      "type": "none",
+      "min": 1.0,
+      "max": 1.0,
+      "nodata_value": 0.0
+    },
+    "bdod": {
+      "type": "log_minmax",
+      "min": 0.0,
+      "max": 5.159055233001709,
+      "nodata_value": 0.0
+    },
+    "clay": {
+      "type": "log_minmax",
+      "min": 0.0,
+      "max": 6.541029930114746,
+      "nodata_value": 0.0
+    },
+    "sand": {
+      "type": "log_minmax",
+      "min": 0.0,
+      "max": 6.889591217041016,
+      "nodata_value": 0.0
+    },
+    "slit": {
+      "type": "log_minmax",
+      "min": 0.0,
+      "max": 6.774223804473877,
+      "nodata_value": 0.0
+    },
+    "soc": {
+      "type": "log_minmax",
+      "min": 0.0,
+      "max": 8.449984550476074,
+      "nodata_value": 0.0
+    },
+    "dem": {
+      "type": "log_minmax",
+      "min": 0.0,
+      "max": 8.381728172302246,
+      "nodata_value": 0.0
+    },
+    "permeability": {
+      "type": "minmax",
+      "min": -1650.0,
+      "max": -1052.0,
+      "nodata_value": 0.0
+    },
+    "hydraulic_conductivity": {
+      "type": "log_minmax",
+      "min": 3.162277661949986e-10,
+      "max": 16.096200942993164,
+      "nodata_value": 0.0
+    }
+  }
+}

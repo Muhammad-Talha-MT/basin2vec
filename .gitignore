@@ -1,0 +1,113 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Environments
+.env
+.env.*
+venv/
+.venv/
+conda-env/
+environment/
+
+# Editors
+.vscode/
+.idea/
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Logs and experiment tracking
+*.log
+logs/
+runs/
+wandb/
+lightning_logs/
+checkpoints/
+
+# Model weights
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.npz
+
+# Basin2Vec datasets and embeddings
+data/
+datasets/
+outputs/
+evaluation_outputs/
+embeddings/
+*.npz
+*.npy
+*.h5
+*.hdf5
+*.zarr
+*.tif
+*.tiff
+*.nc
+*.parquet
+
+# Temporary files
+tmp/
+temp/
+cache/
+
+# macOS metadata
+.DS_Store
+._*
+
+# Python caches
+**/__pycache__/
+*.py[cod]
+
+# Training artifacts
+**/checkpoints/
+**/runs/
+**/logs/
+**/cache/
+**/.cache/
+events.out.tfevents.*
+
+# Generated outputs
+**/evaluation_outputs/
+**/final_spatial_split_results/
+**/final_temporal_split_results/
+**/result_figures/
+**/results_figures/
+
+# Large prediction files
+**/test_predictions*.csv
+**/val_predictions*.csv
+**/train_predictions*.csv
+**/predictions*.csv
+
+# Embeddings and scientific data
+*.npz
+*.npy
+*.zarr
+*.h5
+*.hdf5
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.sqlite
+*.db
+*.tif
+*.tiff
+*.nc
+*.parquet
+*.geojson
+*.gpkg
+*.shp
+*.shx
+*.dbf
