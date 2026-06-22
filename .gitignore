@@ -34,7 +34,6 @@ lightning_logs/
 checkpoints/
 
 # Model weights
-*.pt
 *.pth
 *.ckpt
 *.safetensors
@@ -73,13 +72,6 @@ cache/
 **/.cache/
 events.out.tfevents.*
 
-# Generated outputs
-**/evaluation_outputs/
-**/final_spatial_split_results/
-**/final_temporal_split_results/
-**/result_figures/
-**/results_figures/
-
 # Large prediction files
 **/test_predictions*.csv
 **/val_predictions*.csv
@@ -106,3 +98,41 @@ events.out.tfevents.*
 *.shp
 *.shx
 *.dbf
+
+# Generated training artifacts
+**/evaluation_outputs/
+**/checkpoints/
+**/runs/
+**/logs/
+**/cache/
+**/__pycache__/
+
+# Generated evaluation figures and tables
+**/result_figures/
+**/results_figures/
+
+# Embeddings and large scientific arrays
+*.npz
+*.npy
+*.zarr
+*.h5
+*.hdf5
+
+# Model files
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+
+# Generated predictions
+**/test_predictions*.csv
+**/val_predictions*.csv
+**/train_predictions*.csv
+**/predictions*.csv
+
+# Downloaded executables
+**/cloudflared
+
+# macOS metadata
+.DS_Store
+._*
