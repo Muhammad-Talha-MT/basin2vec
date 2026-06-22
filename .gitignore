@@ -100,10 +100,6 @@ events.out.tfevents.*
 *.dbf
 
 # Generated training artifacts
-**/evaluation_outputs/
-**/checkpoints/
-**/runs/
-**/logs/
 **/cache/
 **/__pycache__/
 
@@ -112,7 +108,6 @@ events.out.tfevents.*
 **/results_figures/
 
 # Embeddings and large scientific arrays
-*.npz
 *.npy
 *.zarr
 *.h5
@@ -133,6 +128,12 @@ events.out.tfevents.*
 # Downloaded executables
 **/cloudflared
 
+# macOS metadata
+.DS_Store
+._*
+
+# Basin2Vec generated embeddings and outputs
+**/evaluation_outputs/
 # macOS metadata
 .DS_Store
 ._*
