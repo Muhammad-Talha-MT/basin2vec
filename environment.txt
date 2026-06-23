@@ -1,15 +1,17 @@
-# Core
-numpy
-pandas
-pyyaml
-tqdm
+name: basin2vec
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - geopandas
+  - yaml
+  - pyproj
+  - proj[version='>=9.3']
+  - gdal[version='>=3.8']
+  - rasterio
+  - octave
+  - make
+  - pkg-config
+  - compilers
+  - umap-learn
 
-# ML / math
-scikit-learn
-torch
-torchvision
-torchaudio
-einops
-
-# Plotting (optional)
-matplotlib
