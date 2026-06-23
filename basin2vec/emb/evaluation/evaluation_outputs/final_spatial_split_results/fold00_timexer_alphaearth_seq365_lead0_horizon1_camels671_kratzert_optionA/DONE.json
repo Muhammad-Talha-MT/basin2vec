@@ -1,0 +1,14 @@
+{
+  "status": "done",
+  "fold_id": 0,
+  "model_name": "timexer",
+  "static_source": "alphaearth",
+  "seq_len": 365,
+  "lead": 0,
+  "horizon": 1,
+  "best_epoch": 30,
+  "best_val_loss": 0.13258109178142846,
+  "finished_time": "2026-06-10 09:56:35",
+  "global_metrics_file": "evaluation_outputs/camels_671_kratzert_style_ungauged_kfold_optionA_basin2vec_aggregated/fold00_timexer_alphaearth_seq365_lead0_horizon1_camels671_kratzert_optionA/test_global_metrics_horizon1.csv",
+  "per_basin_summary_file": "evaluation_outputs/camels_671_kratzert_style_ungauged_kfold_optionA_basin2vec_aggregated/fold00_timexer_alphaearth_seq365_lead0_horizon1_camels671_kratzert_optionA/test_per_basin_summary_horizon1.csv"
+}

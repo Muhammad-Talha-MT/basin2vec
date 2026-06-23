@@ -1,0 +1,4 @@
+model,relation,grouped_relation,n_pairs,mean_l2_distance,median_l2_distance,std_l2_distance,p05_l2_distance,p95_l2_distance
+Basin2Vec,Same-basin across years,Same-basin across years,50000,0.785394081459851,0.8313742578029633,0.24704313288154645,0.25104658752679826,1.105489307641983
+Basin2Vec,Hydrologically Same (weak relation),Hydrologically Same (weak relation),84291,1.1724050362807081,1.2605873346328735,0.2783439170400619,0.5903683304786682,1.4798977375030518
+Basin2Vec,Hydrologically Different (negative relation),Hydrologically Different (negative relation),100000,1.4167954642654956,1.4408347010612488,0.12382717840512121,1.1915899217128754,1.5529138326644896

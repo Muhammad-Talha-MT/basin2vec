@@ -1,0 +1,86 @@
+{
+  "task": "NeuralHydrology-style daily streamflow simulation",
+  "basin_list": "all available CAMELS-US basins",
+  "split_type": "Kratzert-style ungauged basin K-fold CV, Option A",
+  "validation_protocol": "train and validation basins are all non-test basins; validation uses a disjoint time period",
+  "k_folds": 6,
+  "stratify_by_huc": false,
+  "inner_val_fraction": null,
+  "input": "meteorology through target day t plus static descriptor",
+  "target": "same-day discharge Q(t) for H=1, LEAD=0",
+  "target_units": "raw CAMELS streamflow units",
+  "n_common_basins": 671,
+  "static_sources": [
+    "attributes",
+    "basin2vec",
+    "alphaearth",
+    "tessera",
+    "satclip"
+  ],
+  "basin2vec_temporal_mode": "aggregated",
+  "models": [
+    "lstm",
+    "tft",
+    "timexer",
+    "timerxl",
+    "iTransformer"
+  ],
+  "seq_lengths": [
+    365
+  ],
+  "horizons": [
+    1
+  ],
+  "lead": 0,
+  "data_start": "1990-01-01",
+  "data_end": "2014-12-31",
+  "train_start": "1990-01-01",
+  "train_end": "2004-12-31",
+  "val_start": "2005-01-01",
+  "val_end": "2014-12-31",
+  "test_start": "1990-01-01",
+  "test_end": "2014-12-31",
+  "basin2vec_agg_years": [
+    1990,
+    1991,
+    1992,
+    1993,
+    1994,
+    1995,
+    1996,
+    1997,
+    1998,
+    1999,
+    2000,
+    2001,
+    2002,
+    2003,
+    2004,
+    2005,
+    2006,
+    2007,
+    2008,
+    2009,
+    2010,
+    2011,
+    2012,
+    2013,
+    2014
+  ],
+  "alphaearth_agg_years": [
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024
+  ],
+  "satclip_agg_years": [
+    2024
+  ],
+  "tessera_agg_years": [
+    2024
+  ]
+}

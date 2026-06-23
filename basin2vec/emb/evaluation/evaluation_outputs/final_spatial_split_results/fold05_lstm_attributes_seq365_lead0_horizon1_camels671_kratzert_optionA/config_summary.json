@@ -1,0 +1,31 @@
+{
+  "fold_id": 5,
+  "model_name": "lstm",
+  "static_source": "attributes",
+  "seq_len": 365,
+  "lead": 0,
+  "horizon": 1,
+  "task": "NeuralHydrology-style daily streamflow simulation: meteorology through target day, target Q(t)",
+  "split_type": "CAMELS-671 Kratzert-style ungauged basin K-fold CV, Option A: one held-out test fold; all remaining basins used for train/validation with disjoint time periods",
+  "target_units": "raw CAMELS streamflow units",
+  "static_dim": 12,
+  "n_train_samples": 2863574,
+  "n_val_samples_temporal_validation": 1989503,
+  "n_test_samples": 960018,
+  "train_period": "1990-01-01..2004-12-31",
+  "validation_period": "2005-01-01..2014-12-31",
+  "test_period": "1990-01-01..2014-12-31",
+  "n_train_basins": 560,
+  "n_val_basins": 560,
+  "n_test_basins": 111,
+  "dynamic_cols": [
+    "prcp",
+    "srad",
+    "tmax",
+    "tmin",
+    "vp"
+  ],
+  "target_col": "discharge",
+  "basin2vec_temporal_mode": "aggregated",
+  "no_past_discharge_input": true
+}

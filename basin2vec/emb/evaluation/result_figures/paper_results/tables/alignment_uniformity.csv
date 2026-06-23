@@ -1,0 +1,4 @@
+metric,value,interpretation
+Alignment,0.48092156648635864,Lower is better
+Uniformity,-3.1926443576812744,More negative is better
+Positive pairs available,7072260.0,Same-basin cross-year pairs

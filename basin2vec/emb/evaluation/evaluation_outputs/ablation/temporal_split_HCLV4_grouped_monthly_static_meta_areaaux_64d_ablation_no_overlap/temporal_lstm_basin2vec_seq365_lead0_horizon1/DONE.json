@@ -1,0 +1,18 @@
+{
+  "status": "done",
+  "model_name": "lstm",
+  "static_source": "basin2vec",
+  "seq_len": 365,
+  "lead": 0,
+  "horizon": 1,
+  "split_type": "temporal_future_years_same_basins",
+  "train_start": "1990-01-01",
+  "train_end": "2009-12-31",
+  "val_start": "2010-01-01",
+  "val_end": "2014-12-31",
+  "best_epoch": 8,
+  "best_val_loss": 0.10936511088784451,
+  "finished_time": "2026-06-19 03:08:16",
+  "global_metrics_file": "evaluation_outputs/temporal_split_HCLV4_grouped_monthly_static_meta_areaaux_64d_ablation_no_overlap/temporal_lstm_basin2vec_seq365_lead0_horizon1/val_global_metrics_horizon1.csv",
+  "per_basin_summary_file": "evaluation_outputs/temporal_split_HCLV4_grouped_monthly_static_meta_areaaux_64d_ablation_no_overlap/temporal_lstm_basin2vec_seq365_lead0_horizon1/val_per_basin_summary_horizon1.csv"
+}

@@ -34,6 +34,7 @@ lightning_logs/
 checkpoints/
 
 # Model weights
+*.pt
 *.pth
 *.ckpt
 *.safetensors
@@ -79,6 +80,7 @@ events.out.tfevents.*
 **/predictions*.csv
 
 # Embeddings and scientific data
+*.npz
 *.npy
 *.zarr
 *.h5
@@ -104,8 +106,6 @@ events.out.tfevents.*
 **/__pycache__/
 
 # Generated evaluation figures and tables
-**/result_figures/
-**/results_figures/
 
 # Embeddings and large scientific arrays
 *.npy
@@ -118,12 +118,9 @@ events.out.tfevents.*
 *.pth
 *.ckpt
 *.safetensors
-
+last_model.pt
+best_model.pt
 # Generated predictions
-**/test_predictions*.csv
-**/val_predictions*.csv
-**/train_predictions*.csv
-**/predictions*.csv
 
 # Downloaded executables
 **/cloudflared
@@ -133,7 +130,36 @@ events.out.tfevents.*
 ._*
 
 # Basin2Vec generated embeddings and outputs
-**/evaluation_outputs/
+
+
 # macOS metadata
 .DS_Store
 ._*
+
+# Spatial evaluation generated outputs
+
+**/area_class_plots/
+**/cdf_figures/
+**/*_partial.csv
+**/scalers/
+**/splits/
+
+# Large prediction files
+**/*_counts.csv
+**/test_predictions*.csv
+**/val_predictions*.csv
+**/train_predictions*.csv
+**/predictions*.csv
+**/*metrics_horizon1.csv
+**/*predictions_horizon1.csv
+**/*_year_coverage_*.csv
+# Training artifacts
+**/checkpoints/
+**/*.pt
+**/*.pth
+**/*.ckpt
+
+# Arrays and caches
+**/*.npz
+**/*.npy
+**/__pycache__/

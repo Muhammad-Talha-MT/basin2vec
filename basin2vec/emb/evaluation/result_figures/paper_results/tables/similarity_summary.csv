@@ -1,0 +1,3 @@
+metric,mean,std
+Same-basin cross-year cosine similarity,0.7593756318092346,0.15192489326000214
+Different-basin cosine similarity,0.16675740480422974,0.12455158680677414

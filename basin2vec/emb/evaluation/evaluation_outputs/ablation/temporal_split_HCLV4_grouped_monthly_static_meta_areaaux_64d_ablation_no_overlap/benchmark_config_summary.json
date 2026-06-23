@@ -1,0 +1,105 @@
+{
+  "task": "daily streamflow prediction / rainfall-runoff simulation",
+  "split_type": "temporal_future_years_same_basins",
+  "input": "meteorology through target day t plus descriptor",
+  "target": "same-day discharge Q(t) for H=1, LEAD=0",
+  "train_basins": "all common basins",
+  "validation_basins": "same common basins",
+  "n_common_basins": 671,
+  "static_sources": [
+    "basin2vec"
+  ],
+  "models": [
+    "lstm"
+  ],
+  "seq_lengths": [
+    365
+  ],
+  "horizons": [
+    1
+  ],
+  "lead": 0,
+  "data_start": "1990-01-01",
+  "data_end": "2014-12-31",
+  "train_start": "1990-01-01",
+  "train_end": "2009-12-31",
+  "val_start": "2010-01-01",
+  "val_end": "2014-12-31",
+  "basin2vec_years": [
+    1990,
+    1991,
+    1992,
+    1993,
+    1994,
+    1995,
+    1996,
+    1997,
+    1998,
+    1999,
+    2000,
+    2001,
+    2002,
+    2003,
+    2004,
+    2005,
+    2006,
+    2007,
+    2008,
+    2009,
+    2010,
+    2011,
+    2012,
+    2013,
+    2014
+  ],
+  "basin2vec_agg_years": [
+    1990,
+    1991,
+    1992,
+    1993,
+    1994,
+    1995,
+    1996,
+    1997,
+    1998,
+    1999,
+    2000,
+    2001,
+    2002,
+    2003,
+    2004,
+    2005,
+    2006,
+    2007,
+    2008,
+    2009,
+    2010,
+    2011,
+    2012,
+    2013,
+    2014
+  ],
+  "alphaearth_agg_years": [
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024
+  ],
+  "tessera_agg_years": [
+    2024
+  ],
+  "satclip_agg_years": [
+    2024
+  ],
+  "basin2vec_npz": "../src/evaluation_outputs/HCLV4_grouped_monthly_static_meta_areaaux_64d_ablation_no_overlap/basin_embeddings_full.npz",
+  "alphaearth_npz": "alphaearth_embeddings/embeddings/alphaearth_annual_basin_embeddings_2017_202ce4_scale500m.npz",
+  "tessera_npz": "tessera_embeddings/tessera_8point_2024_embeddings.npz",
+  "satclip_npz": "satclip_embeddings/satclip_8point_2024_embeddings.npz",
+  "basin2vec_usage": "aggregated static Basin2Vec vector: average over BASIN2VEC_YEARS per basin",
+  "tessera_usage": "static TESSERA basin descriptor: average over TESSERA_AGG_YEARS per basin",
+  "satclip_usage": "static SatCLIP basin descriptor: average over SATCLIP_AGG_YEARS per basin"
+}

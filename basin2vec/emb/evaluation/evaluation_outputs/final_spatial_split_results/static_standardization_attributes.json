@@ -1,0 +1,7 @@
+{
+  "source_name": "attributes",
+  "static_temporal_mode": "aggregated",
+  "n_fit_basins": 560,
+  "n_transform_basins": 671,
+  "fit_scope": "non-test train basins only; validation uses same basins but later time period"
+}

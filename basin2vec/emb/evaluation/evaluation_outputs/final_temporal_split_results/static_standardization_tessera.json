@@ -1,0 +1,8 @@
+{
+  "source_name": "tessera",
+  "basin2vec_usage_mode": null,
+  "n_fit_keys": 671,
+  "n_transform_keys": 671,
+  "fit_years_for_basin2vec": null,
+  "transform_years_for_basin2vec": null
+}

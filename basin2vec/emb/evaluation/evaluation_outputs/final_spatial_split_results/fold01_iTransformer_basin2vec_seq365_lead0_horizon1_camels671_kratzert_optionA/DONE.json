@@ -1,0 +1,14 @@
+{
+  "status": "done",
+  "fold_id": 1,
+  "model_name": "iTransformer",
+  "static_source": "basin2vec",
+  "seq_len": 365,
+  "lead": 0,
+  "horizon": 1,
+  "best_epoch": 19,
+  "best_val_loss": 0.1462374364863721,
+  "finished_time": "2026-06-11 15:44:00",
+  "global_metrics_file": "evaluation_outputs/camels_671_kratzert_style_ungauged_kfold_optionA_basin2vec_aggregated/fold01_iTransformer_basin2vec_seq365_lead0_horizon1_camels671_kratzert_optionA/test_global_metrics_horizon1.csv",
+  "per_basin_summary_file": "evaluation_outputs/camels_671_kratzert_style_ungauged_kfold_optionA_basin2vec_aggregated/fold01_iTransformer_basin2vec_seq365_lead0_horizon1_camels671_kratzert_optionA/test_per_basin_summary_horizon1.csv"
+}

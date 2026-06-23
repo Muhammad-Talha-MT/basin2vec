@@ -1,0 +1,4 @@
+pair_type,n_pairs,mean_l2_distance,median_l2_distance,std_l2_distance
+"Soft positive: same basin, different years",50000,0.6475903987884521,0.6633767485618591,0.24499577283859253
+"Overlap positive: different basins, overlap > 0.5",34291,1.1557985544204712,1.1973212957382202,0.18128134310245514
+"Negative: different basins, non-overlap",50000,1.2473653554916382,1.2642102241516113,0.11002380400896072

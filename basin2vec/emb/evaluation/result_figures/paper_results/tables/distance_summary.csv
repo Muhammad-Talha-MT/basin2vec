@@ -1,0 +1,3 @@
+metric,mean,std
+Intra-basin cosine distance,0.2406243532896042,0.15192489326000214
+Inter-basin cosine distance,0.8342837691307068,0.1239696517586708

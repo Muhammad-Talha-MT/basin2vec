@@ -1,2 +1,0 @@
-year,start,end,scale,batch_size,error
-2017,100,125,500,25,Request payload size exceeds the limit: 10485760 bytes.

@@ -1,0 +1,7 @@
+metric,value
+embedding_mean,0.0017859544605016708
+embedding_std,0.08837030082941055
+embedding_abs_mean,0.07076656073331833
+num_samples,362680.0
+embedding_dim,128.0
+num_unique_basins,9067.0

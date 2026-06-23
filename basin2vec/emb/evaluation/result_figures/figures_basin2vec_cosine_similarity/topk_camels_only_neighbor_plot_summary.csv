@@ -1,0 +1,2 @@
+reference_gage_id,cosine_similarity,distance_km,absdiff_aridity,absdiff_snow_fraction,absdiff_baseflow_index,absdiff_drainage_area_km2,absdiff_runoff_ratio,same_ecoregion
+02481510,0.45236098766326904,1233.37168740661,0.5115650368034844,0.050503701538069545,0.1104384734956561,422.05600000000004,0.16140032787327332,0.1

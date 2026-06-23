@@ -1,0 +1,6 @@
+metric,value
+Recall@1,0.979
+Recall@5,0.9984
+Recall@10,0.9988
+MRR,0.9878053628347099
+num_queries,5000.0

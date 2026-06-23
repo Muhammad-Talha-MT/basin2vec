@@ -1,0 +1,18 @@
+{
+  "status": "done",
+  "model_name": "itransformer",
+  "static_source": "satclip",
+  "seq_len": 120,
+  "lead": 0,
+  "horizon": 1,
+  "split_type": "temporal_future_years_same_basins",
+  "train_start": "1990-01-01",
+  "train_end": "2009-12-31",
+  "val_start": "2010-01-01",
+  "val_end": "2014-12-31",
+  "best_epoch": 20,
+  "best_val_loss": 0.16789189506251603,
+  "finished_time": "2026-06-02 15:00:39",
+  "global_metrics_file": "evaluation_outputs/camels_exogenous_multimodel_baselines_temporal_rest/temporal_itransformer_satclip_seq120_lead0_horizon1/val_global_metrics_horizon1.csv",
+  "per_basin_summary_file": "evaluation_outputs/camels_exogenous_multimodel_baselines_temporal_rest/temporal_itransformer_satclip_seq120_lead0_horizon1/val_per_basin_summary_horizon1.csv"
+}

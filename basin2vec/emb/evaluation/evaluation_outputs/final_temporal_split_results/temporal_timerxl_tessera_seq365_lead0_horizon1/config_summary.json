@@ -1,0 +1,36 @@
+{
+  "model_name": "timerxl",
+  "static_source": "tessera",
+  "seq_len": 365,
+  "lead": 0,
+  "horizon": 1,
+  "task": "daily streamflow prediction / rainfall-runoff simulation; input meteorology through target day; target Q(t)",
+  "split_type": "temporal_future_years_same_basins",
+  "best_epoch": 18,
+  "best_val_loss": 0.12199076660428937,
+  "static_dim": 128,
+  "n_train_samples": 4654764,
+  "n_val_samples": 1158331,
+  "n_basins": 671,
+  "dynamic_cols": [
+    "prcp",
+    "srad",
+    "tmax",
+    "tmin",
+    "vp"
+  ],
+  "target_col": "discharge",
+  "no_past_discharge_input": true,
+  "camels_root": "/data/camels_us",
+  "basin2vec_npz": "../src/evaluation_outputs/HCLV4_grouped_monthly_static_meta_areaaux_64d/basin_embeddings_full.npz",
+  "alphaearth_npz": "alphaearth_embeddings/embeddings/alphaearth_annual_basin_embeddings_2017_2024_scale500m.npz",
+  "tessera_npz": "tessera_embeddings/tessera_8point_2024_embeddings.npz",
+  "satclip_npz": "satclip_embeddings/satclip_8point_2024_embeddings.npz",
+  "tessera_agg_years": [
+    2024
+  ],
+  "satclip_agg_years": [
+    2024
+  ],
+  "note": "Basin2Vec is averaged across BASIN2VEC_YEARS to create one static vector per basin. TESSERA and SatCLIP are treated as static basin-level descriptors from their 8-point mean NPZ files. Moirai entry is a supervised Moirai-style patch Transformer, not an official pretrained Moirai checkpoint."
+}
