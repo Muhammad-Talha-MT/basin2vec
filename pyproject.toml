@@ -45,10 +45,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/Muhammad-Talha-MT/basin2vec"
-Repository = "https://github.com/Muhammad-Talha-MT/basin2vec"
-Issues = "https://github.com/Muhammad-Talha-MT/basin2vec/issues"
-Releases = "https://github.com/Muhammad-Talha-MT/basin2vec/releases"
+Homepage = ""
+Repository = ""
+Issues = ""
+Releases = ""
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/basin2vec"]
