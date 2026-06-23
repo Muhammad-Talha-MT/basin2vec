@@ -80,7 +80,6 @@ events.out.tfevents.*
 **/predictions*.csv
 
 # Embeddings and scientific data
-*.npz
 *.npy
 *.zarr
 *.h5
