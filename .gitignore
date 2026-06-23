@@ -34,6 +34,7 @@ lightning_logs/
 checkpoints/
 
 # Model weights
+basin_embeddings_full.npz
 *.pt
 *.pth
 *.ckpt
@@ -159,6 +160,5 @@ best_model.pt
 **/*.ckpt
 
 # Arrays and caches
-**/*.npz
 **/*.npy
 **/__pycache__/
