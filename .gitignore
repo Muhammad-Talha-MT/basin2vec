@@ -162,3 +162,6 @@ best_model.pt
 # Arrays and caches
 **/*.npy
 **/__pycache__/
+
+# Generated Basin2Vec embedding archives
+emb/src/evaluation_outputs/**/basin_embeddings_full.npz
