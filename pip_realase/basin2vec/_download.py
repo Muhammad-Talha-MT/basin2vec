@@ -15,7 +15,7 @@ DATA_DIRECTORY_NAME = f"basin2vec-pretrained-{DATA_VERSION}"
 ASSET_NAME = f"{DATA_DIRECTORY_NAME}.tar.gz"
 
 DATA_URL = (
-    "https://github.com/Muhammad-Talha-MT/basin2vec/"
+    "https://github.com/<user_name>/basin2vec/"
     f"releases/download/{DATA_VERSION}/{ASSET_NAME}"
 )
 
