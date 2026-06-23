@@ -21,7 +21,7 @@ app.add_middleware(
 # Paths
 # --------------------------------------------------
 NPZ_PATH = Path(
-    "/home/talhamuh/basin2vec/emb/src/evaluation_outputs/"
+    "../emb/src/evaluation_outputs/"
     "HCLV4_grouped_monthly_static_meta_areaaux_64d/basin_embeddings_full.npz"
 )
 
