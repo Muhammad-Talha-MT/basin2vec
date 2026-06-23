@@ -37,7 +37,7 @@ Full run, once coverage is confirmed:
         --max-points-per-basin 512 \
         --batch-size 32 \
         --workers 2
-python extract_tessera.py   --basins-gpkg /data/basin2vec/raw/gages-ii/geopackage/gages_basins.gpkg   --index-parquet /home/talhamuh/basin2vec/emb/config/training_step5/sample_index.parquet   --out-dir /data/tessera/basin_outputs/tessera_embeddings   --years 2024   --scale 3000   --sampling-mode adaptive   --max-points-per-basin 128   --min-points-per-basin 8   --batch-size 64   --workers 2   --query-chunk-size 32768   --dataset-version v1.1   --dataset-variant cambridge   --cache-dir /data/tessera/geotessera_cache   --embeddings-dir /data/tessera
+python extract_tessera.py   --basins-gpkg /data/basin2vec/raw/gages-ii/geopackage/gages_basins.gpkg   --index-parquet emb/config/training_step5/sample_index.parquet   --out-dir /data/tessera/basin_outputs/tessera_embeddings   --years 2024   --scale 3000   --sampling-mode adaptive   --max-points-per-basin 128   --min-points-per-basin 8   --batch-size 64   --workers 2   --query-chunk-size 32768   --dataset-version v1.1   --dataset-variant cambridge   --cache-dir /data/tessera/geotessera_cache   --embeddings-dir /data/tessera
 
 Install:
     pip install geotessera geopandas pyarrow shapely pyproj tqdm pandas numpy
