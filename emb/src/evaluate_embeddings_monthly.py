@@ -7,14 +7,14 @@ This evaluator is for checkpoints trained with:
     Basin2VecGroupedZarrDataset
     GroupedBasinEncoderMonthlyV2
 
-Example checkpoint:
-
-    checkpoints/HCLV4_grouped_monthly_static_meta_areaaux_64d/epoch_10.pt
-
-Run:
+Run (from any directory):
 
     CUDA_VISIBLE_DEVICES=0,1,2,3 torchrun --nproc_per_node=4 \
-        --master_port=29518 evaluate_grouped_prestacked_hclv4.py
+        --master_port=29518 emb/src/evaluate_embeddings_monthly.py \
+        --run-name HCLV4_grouped_monthly_static_meta_areaaux_64d
+
+By default this loads checkpoints/<run-name>/epoch_100.pt (next to this
+script); use --checkpoint to choose another file.
 
 Outputs:
 
@@ -28,6 +28,7 @@ Outputs:
 
 from __future__ import annotations
 
+import argparse
 import os
 import math
 import warnings
@@ -65,16 +66,24 @@ torch.set_float32_matmul_precision("high")
 # ----------------------------------------------------------
 # CONFIG
 # ----------------------------------------------------------
-CHECKPOINT = "checkpoints/HCLV4_grouped_monthly_static_meta_areaaux_64d_ablation_no_temporal/epoch_100.pt"
+# Data locations are resolved from BASIN2VEC_DATA_ROOT (default: <repo>/data).
+SCRIPT_DIR = Path(__file__).resolve().parent
+REPO_ROOT = SCRIPT_DIR.parents[1]
+DATA_ROOT = Path(os.environ.get("BASIN2VEC_DATA_ROOT", REPO_ROOT / "data"))
+CACHE_DIR = DATA_ROOT / "cache"
+CONFIG_DIR = REPO_ROOT / "emb" / "config" / "training_step5"
 
-INDEX_PARQUET = "../config/training_step5/sample_index.parquet"
-GROUPED_ZARR_PATH = "/data/basin2vec/cache/patches_step4_grouped/grouped_monthly_static.zarr"
-MASK_ZARR_PATH = "/data/basin2vec/cache/static_masks.zarr"
+RUN_NAME = "HCLV4_grouped_monthly_static_meta_areaaux_64d"
+CHECKPOINT = SCRIPT_DIR / "checkpoints" / RUN_NAME / "epoch_100.pt"
 
-BASIN_METADATA = "/data/basin2vec/cache/metadata/basin_metadata.parquet"
-OVERLAP_PAIRS_PARQUET = "/data/basin2vec/cache/basin_overlap_pairs.parquet"
+INDEX_PARQUET = CONFIG_DIR / "sample_index.parquet"
+GROUPED_ZARR_PATH = CACHE_DIR / "patches_step4_grouped" / "grouped_monthly_static.zarr"
+MASK_ZARR_PATH = CACHE_DIR / "static_masks.zarr"
 
-OUT_DIR = Path("evaluation_outputs/HCLV4_grouped_monthly_static_meta_areaaux_64d_ablation_no_temporal")
+BASIN_METADATA = CACHE_DIR / "metadata" / "basin_metadata.parquet"
+OVERLAP_PAIRS_PARQUET = CACHE_DIR / "basin_overlap_pairs.parquet"
+
+OUT_DIR = SCRIPT_DIR / "evaluation_outputs" / RUN_NAME
 PLOT_DIR = OUT_DIR / "plots"
 
 BATCH_SIZE = 256
@@ -1603,12 +1612,13 @@ def main():
 
     basin_meta_cols = checkpoint.get("basin_meta_cols", DEFAULT_BASIN_META_COLS)
 
-    paths = checkpoint.get("paths", {})
-    grouped_zarr_path = paths.get("grouped_zarr_path", GROUPED_ZARR_PATH)
-    index_parquet = paths.get("index_parquet", INDEX_PARQUET)
-    mask_zarr_path = paths.get("mask_zarr_path", MASK_ZARR_PATH)
-    basin_metadata = paths.get("basin_metadata", BASIN_METADATA)
-    overlap_pairs_parquet = paths.get("overlap_pairs_parquet", OVERLAP_PAIRS_PARQUET)
+    # Use locally configured data paths rather than the ones stored in the
+    # checkpoint, which point at the machine the model was trained on.
+    grouped_zarr_path = str(GROUPED_ZARR_PATH)
+    index_parquet = str(INDEX_PARQUET)
+    mask_zarr_path = str(MASK_ZARR_PATH)
+    basin_metadata = str(BASIN_METADATA)
+    overlap_pairs_parquet = str(OVERLAP_PAIRS_PARQUET)
 
     emb_dim = int(checkpoint.get("emb_dim", 64))
     months_per_year = int(checkpoint.get("months_per_year", 12))
@@ -2038,5 +2048,23 @@ def main():
     cleanup_ddp()
 
 
+def parse_args():
+    p = argparse.ArgumentParser(description="Evaluate a trained Basin2Vec checkpoint and export embeddings.")
+    p.add_argument("--run-name", default=RUN_NAME,
+                   help="Run to evaluate; selects checkpoints/<run-name> and evaluation_outputs/<run-name>.")
+    p.add_argument("--checkpoint", type=Path, default=None,
+                   help="Checkpoint file (default: checkpoints/<run-name>/epoch_100.pt).")
+    p.add_argument("--out-dir", type=Path, default=None,
+                   help="Output directory (default: evaluation_outputs/<run-name>).")
+    return p.parse_args()
+
+
 if __name__ == "__main__":
+    args = parse_args()
+
+    RUN_NAME = args.run_name
+    CHECKPOINT = args.checkpoint or SCRIPT_DIR / "checkpoints" / RUN_NAME / "epoch_100.pt"
+    OUT_DIR = args.out_dir or SCRIPT_DIR / "evaluation_outputs" / RUN_NAME
+    PLOT_DIR = OUT_DIR / "plots"
+
     main()

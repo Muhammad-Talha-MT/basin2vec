@@ -61,7 +61,7 @@ class Basin2VecGroupedZarrDataset(Dataset):
         grouped_zarr_path: str,
         basin_metadata_path: str | None = None,
         basin_meta_cols: list[str] | None = None,
-        mask_zarr_path: str = "/data/basin2vec/cache/static_masks.zarr",
+        mask_zarr_path: str | None = None,
         mask_dataset: str = "mask",
         require_done: bool = True,
     ):
@@ -116,6 +116,8 @@ class Basin2VecGroupedZarrDataset(Dataset):
         if self.has_basin_metadata:
             self._load_basin_metadata(basin_metadata_path)
 
+        if mask_zarr_path is None:
+            raise ValueError("mask_zarr_path is required.")
         self.mask_zarr_path = Path(mask_zarr_path)
         self.mask_z = zarr.open(self.mask_zarr_path, mode="r")[mask_dataset]
 

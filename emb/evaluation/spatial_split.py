@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import argparse
 import os
 import re
 import json
@@ -25,8 +26,35 @@ from torch.utils.data.distributed import DistributedSampler
 # ==========================================================
 # CONFIG
 # ==========================================================
+# Defaults reproduce evaluation_outputs/final_spatial_split_results
+# (see benchmark_config_summary.json there). The order of --models and
+# --static-sources matters: it is part of each experiment's random seed.
 
-CAMELS_ROOT = Path("/data/camels_us")
+SCRIPT_DIR = Path(__file__).resolve().parent
+REPO_ROOT = SCRIPT_DIR.parents[1]
+DATA_ROOT = Path(os.environ.get("BASIN2VEC_DATA_ROOT", REPO_ROOT / "data"))
+CAMELS_ROOT = Path(os.environ.get("CAMELS_ROOT", DATA_ROOT / "camels_us"))
+
+
+def parse_args():
+    p = argparse.ArgumentParser(description="Spatial (ungauged-basin) K-fold streamflow benchmark on CAMELS-US.")
+    p.add_argument("--basin2vec-npz", type=Path,
+                   default=REPO_ROOT / "emb/src/evaluation_outputs/HCLV4_grouped_monthly_static_meta_areaaux_64d/basin_embeddings_full.npz",
+                   help="Row-wise Basin2Vec NPZ (see scripts/import_public_embeddings.py).")
+    p.add_argument("--out-dir", type=Path,
+                   default=SCRIPT_DIR / "evaluation_outputs/final_spatial_split_results")
+    p.add_argument("--models", nargs="+",
+                   default=["lstm", "tft", "timexer", "timerxl", "iTransformer"])
+    p.add_argument("--static-sources", nargs="+",
+                   default=["attributes", "basin2vec", "alphaearth", "tessera", "satclip"],
+                   choices=["attributes", "basin2vec", "alphaearth", "tessera", "satclip"])
+    p.add_argument("--seq-lengths", nargs="+", type=int, default=[365])
+    p.add_argument("--basin2vec-temporal-mode", default="aggregated", choices=["aggregated", "yearly"])
+    return p.parse_args()
+
+
+ARGS = parse_args()
+
 DAYMET_DIR = CAMELS_ROOT / "basin_mean_forcing" / "daymet"
 STREAMFLOW_DIR = CAMELS_ROOT / "usgs_streamflow"
 ATTR_DIR = CAMELS_ROOT / "camels_attributes_v2.0"
@@ -35,37 +63,28 @@ ATTR_DIR = CAMELS_ROOT / "camels_attributes_v2.0"
 # older selected 531-basin XLSX list.  The constants below are kept only for
 # backward compatibility with older helper functions and are not used for
 # filtering the basin set.
-CAMELS_531_XLSX = Path("michigan_data/Camels_531basins.xlsx")
-CAMELS_531_XLSX_FALLBACK = Path("michigan_data/Camels_531basins.xlsx")
+CAMELS_531_XLSX = SCRIPT_DIR / "result_figures/michigan_data/Camels_531basins.xlsx"
+CAMELS_531_XLSX_FALLBACK = CAMELS_531_XLSX
 
-INDEX_PARQUET = Path("../config/training_step5/sample_index.parquet")
+INDEX_PARQUET = REPO_ROOT / "emb/config/training_step5/sample_index.parquet"
 
-BASIN2VEC_NPZ = Path(
-    "../src/evaluation_outputs/HCLV4_grouped_monthly_static_meta_areaaux_64d_ablation_no_temporal/basin_embeddings_full.npz"
-)
+BASIN2VEC_NPZ = ARGS.basin2vec_npz
 BASIN2VEC_ARRAY_KEY = "embeddings"
 
 # Basin2Vec temporal handling:
 #   "aggregated" = one basin-level 64-d vector averaged over BASIN2VEC_AGG_YEARS.
 #   "yearly"     = use the Basin2Vec vector from the sample target year.
 # For LEAD=0 and H=1, the target year is the same as the issue/current-day year.
-BASIN2VEC_TEMPORAL_MODE = "aggregated"
-# BASIN2VEC_TEMPORAL_MODE = "yearly"
+BASIN2VEC_TEMPORAL_MODE = ARGS.basin2vec_temporal_mode
 
-ALPHAEARTH_NPZ = Path(
-    "alphaearth_embeddings/embeddings/alphaearth_annual_basin_embeddings_2017_2024_scale500m.npz"
-)
-SATCLIP_NPZ = Path("satclip_embeddings/satclip_8point_2024_embeddings.npz")
-TESSERA_NPZ = Path("tessera_embeddings/tessera_8point_2024_embeddings.npz")
+ALPHAEARTH_NPZ = SCRIPT_DIR / "alphaearth_embeddings/embeddings/alphaearth_annual_basin_embeddings_2017_2024_scale500m.npz"
+SATCLIP_NPZ = SCRIPT_DIR / "satclip_embeddings/satclip_8point_2024_embeddings.npz"
+TESSERA_NPZ = SCRIPT_DIR / "tessera_embeddings/tessera_8point_2024_embeddings.npz"
 
-OUT_DIR = Path(
-    f"evaluation_outputs/ablation_spatial_basin2vec_no_temporal_{BASIN2VEC_TEMPORAL_MODE}"
-)
+OUT_DIR = ARGS.out_dir
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-# Keep the same model registry from your existing benchmark.
-# MODEL_NAMES = ["lstm", "tft", "timexer", "timerxl", "iTransformer"]
-MODEL_NAMES = ["lstm"]
+MODEL_NAMES = ARGS.models
 DATE_COL = "date"
 TARGET_COL = "discharge"
 
@@ -74,9 +93,8 @@ DYNAMIC_COLS = ["prcp", "srad", "tmax", "tmin", "vp"]
 
 # All requested static sources. Basin2Vec is averaged over available years so it
 # is a basin-level static descriptor, same as AlphaEarth/SatCLIP/TESSERA.
-STATIC_SOURCES = ["basin2vec"]
-# STATIC_SOURCES = ["basin2vec", "alphaearth", "tessera", "satclip"]
-SEQ_LENGTHS = [365]
+STATIC_SOURCES = ARGS.static_sources
+SEQ_LENGTHS = ARGS.seq_lengths
 LEAD = 0
 HORIZONS = [1]
 

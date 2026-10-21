@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import argparse
 import os
 import re
 import json
@@ -26,52 +27,60 @@ from torch.utils.data.distributed import DistributedSampler
 # ==========================================================
 # CONFIG
 # ==========================================================
+# Defaults reproduce evaluation_outputs/final_temporal_split_results
+# (see benchmark_config_summary.json there). The order of --models and
+# --static-sources matters: it is part of each experiment's random seed.
 
-CAMELS_ROOT = Path("/data/camels_us")
+SCRIPT_DIR = Path(__file__).resolve().parent
+REPO_ROOT = SCRIPT_DIR.parents[1]
+DATA_ROOT = Path(os.environ.get("BASIN2VEC_DATA_ROOT", REPO_ROOT / "data"))
+CAMELS_ROOT = Path(os.environ.get("CAMELS_ROOT", DATA_ROOT / "camels_us"))
+
+
+def parse_args():
+    p = argparse.ArgumentParser(description="Temporal (future-years, same basins) streamflow benchmark on CAMELS-US.")
+    p.add_argument("--basin2vec-npz", type=Path,
+                   default=REPO_ROOT / "emb/src/evaluation_outputs/HCLV4_grouped_monthly_static_meta_areaaux_64d/basin_embeddings_full.npz",
+                   help="Row-wise Basin2Vec NPZ (see scripts/import_public_embeddings.py).")
+    p.add_argument("--out-dir", type=Path,
+                   default=SCRIPT_DIR / "evaluation_outputs/final_temporal_split_results")
+    p.add_argument("--models", nargs="+",
+                   default=["lstm", "tft", "timexer", "timerxl", "itransformer"],
+                   help="Also available: ealstm, timemixer, moirai.")
+    p.add_argument("--static-sources", nargs="+",
+                   default=["attributes", "basin2vec", "alphaearth", "tessera", "satclip"],
+                   choices=["attributes", "basin2vec", "alphaearth", "tessera", "satclip"])
+    p.add_argument("--seq-lengths", nargs="+", type=int, default=[365, 120])
+    return p.parse_args()
+
+
+ARGS = parse_args()
+
 DAYMET_DIR = CAMELS_ROOT / "basin_mean_forcing" / "daymet"
 STREAMFLOW_DIR = CAMELS_ROOT / "usgs_streamflow"
 ATTR_DIR = CAMELS_ROOT / "camels_attributes_v2.0"
 
-INDEX_PARQUET = Path("../config/training_step5/sample_index.parquet")
+INDEX_PARQUET = REPO_ROOT / "emb/config/training_step5/sample_index.parquet"
 
-BASIN2VEC_NPZ = Path(
-    "../src/evaluation_outputs/HCLV4_grouped_monthly_static_meta_areaaux_64d_ablation_no_temporal/basin_embeddings_full.npz"
-)
+BASIN2VEC_NPZ = ARGS.basin2vec_npz
 BASIN2VEC_ARRAY_KEY = "embeddings"
 
-ALPHAEARTH_NPZ = Path(
-    "alphaearth_embeddings/embeddings/alphaearth_annual_basin_embeddings_2017_202ce4_scale500m.npz"
-)
+ALPHAEARTH_NPZ = SCRIPT_DIR / "alphaearth_embeddings/embeddings/alphaearth_annual_basin_embeddings_2017_2024_scale500m.npz"
+SATCLIP_NPZ = SCRIPT_DIR / "satclip_embeddings/satclip_8point_2024_embeddings.npz"
+TESSERA_NPZ = SCRIPT_DIR / "tessera_embeddings/tessera_8point_2024_embeddings.npz"
 
-SATCLIP_NPZ = Path(
-    "satclip_embeddings/satclip_8point_2024_embeddings.npz"
-)
-
-TESSERA_NPZ = Path(
-    "tessera_embeddings/tessera_8point_2024_embeddings.npz"
-)
-
-OUT_DIR = Path("evaluation_outputs/temporal_split_HCLV4_grouped_monthly_static_meta_areaaux_64d_ablation_no_temporal")
+OUT_DIR = ARGS.out_dir
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-# MODEL_NAMES = ["lstm", "tft", "timexer", "timerxl", "itransformer"]
-MODEL_NAMES = ["lstm"]
+MODEL_NAMES = ARGS.models
 
 DATE_COL = "date"
 TARGET_COL = "discharge"
 
 DYNAMIC_COLS = ["prcp", "srad", "tmax", "tmin", "vp"]
 
-# STATIC_SOURCES = ["basin2vec", "alphaearth"]
-# STATIC_SOURCES = ["attributes"]
-STATIC_SOURCES = ["basin2vec"]
-# STATIC_SOURCES = ["alphaearth"]
-# STATIC_SOURCES = ["tessera"]
-# STATIC_SOURCES = ["satclip"]
-# STATIC_SOURCES = ["attributes", "basin2vec", "alphaearth", "tessera", "satclip"]
-
-SEQ_LENGTHS = [365]
-# SEQ_LENGTHS = [365, 120]
+STATIC_SOURCES = ARGS.static_sources
+SEQ_LENGTHS = ARGS.seq_lengths
 
 LEAD = 0
 HORIZONS = [1]
