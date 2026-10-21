@@ -11,7 +11,7 @@ requires-python = ">=3.10"
 license = "MIT"
 license-files = ["LICENSE*"]
 authors = [
-    
+    { name = "Basin2Vec authors" },
 ]
 keywords = [
     "hydrology",
@@ -44,11 +44,16 @@ dev = [
     "twine>=5"
 ]
 
-[project.urls]
-Homepage = ""
-Repository = ""
-Issues = ""
-Releases = ""
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/basin2vec",
+    "tests",
+    "README.md",
+    "LICENSE",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/basin2vec"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
