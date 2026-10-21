@@ -26,8 +26,9 @@ from torch.utils.data.distributed import DistributedSampler
 # ==========================================================
 # CONFIG
 # ==========================================================
-# Defaults reproduce evaluation_outputs/final_spatial_split_results
-# (see benchmark_config_summary.json there). The order of --models and
+# Defaults use the configuration recorded in
+# evaluation_outputs/final_spatial_split_results/benchmark_config_summary.json,
+# writing to a separate folder so the shipped results are not overwritten. The order of --models and
 # --static-sources matters: it is part of each experiment's random seed.
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -42,7 +43,7 @@ def parse_args():
                    default=REPO_ROOT / "emb/src/evaluation_outputs/HCLV4_grouped_monthly_static_meta_areaaux_64d/basin_embeddings_full.npz",
                    help="Row-wise Basin2Vec NPZ (see scripts/import_public_embeddings.py).")
     p.add_argument("--out-dir", type=Path,
-                   default=SCRIPT_DIR / "evaluation_outputs/final_spatial_split_results")
+                   default=SCRIPT_DIR / "evaluation_outputs/reproduced_spatial_split_results")
     p.add_argument("--models", nargs="+",
                    default=["lstm", "tft", "timexer", "timerxl", "iTransformer"])
     p.add_argument("--static-sources", nargs="+",
