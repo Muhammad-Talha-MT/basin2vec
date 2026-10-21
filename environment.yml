@@ -1,0 +1,55 @@
+# Full research environment: training, evaluation, notebooks and the app.
+# The lightweight embedding-lookup package alone only needs `pip install .`.
+#
+#   conda env create -f environment.yml
+#   conda activate basin2vec
+#
+# PyTorch is installed from PyPI below. For a specific CUDA build, follow
+# https://pytorch.org/get-started/locally/ after creating the environment.
+name: basin2vec
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+
+  # Core numerics
+  - numpy>=1.24,<2.3
+  - pandas>=2.0
+  - pyarrow>=14
+  - scipy>=1.11
+  - scikit-learn>=1.3
+  - matplotlib>=3.8
+  - tqdm
+  - pyyaml
+
+  # Training data cache (code uses the zarr v2 API)
+  - zarr>=2.16,<3
+  - numcodecs>=0.12,<0.16
+
+  # Geospatial
+  - gdal>=3.8
+  - geopandas>=0.14
+  - rasterio
+  - pyproj>=3.6
+  - shapely>=2.0
+
+  # Embedding projections in evaluate_embeddings_monthly.py
+  - umap-learn
+
+  # Notebooks
+  - jupyterlab
+  - ipykernel
+
+  # Exploration app
+  - fastapi
+  - uvicorn
+
+  - pip:
+      - torch>=2.3
+      - tensorboard
+      # Baseline embedding extraction (extract_alphaearth.py / extract_tessera.py)
+      - earthengine-api
+      - geotessera
+      # Basin2Vec lookup package from this repository
+      - -e .

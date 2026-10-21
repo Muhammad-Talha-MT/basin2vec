@@ -8,6 +8,7 @@ dist/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.ipynb_checkpoints/
 
 # Environments
 .env
@@ -17,151 +18,70 @@ venv/
 conda-env/
 environment/
 
-# Editors
+# Editors and OS
 .vscode/
 .idea/
 .DS_Store
+._*
 
-# Jupyter
-.ipynb_checkpoints/
-
-# Logs and experiment tracking
-*.log
-logs/
-runs/
-wandb/
-lightning_logs/
-checkpoints/
-
-# Model weights
-basin_embeddings_full.npz
-*.pt
-*.pth
-*.ckpt
-*.safetensors
-
-# Basin2Vec datasets and embeddings
+# Local data (BASIN2VEC_DATA_ROOT defaults to ./data)
 data/
 datasets/
+review_data/
 outputs/
-*.npy
-*.h5
-*.hdf5
-*.zarr
-*.tif
-*.tiff
-*.nc
-*.parquet
-
-# Temporary files
 tmp/
 temp/
 cache/
-
-# macOS metadata
-.DS_Store
-._*
-
-# Python caches
-**/__pycache__/
-*.py[cod]
-
-# Training artifacts
-**/checkpoints/
-**/runs/
-**/logs/
-**/cache/
 **/.cache/
-events.out.tfevents.*
 
-# Large prediction files
-**/test_predictions*.csv
-**/val_predictions*.csv
-**/train_predictions*.csv
-**/predictions*.csv
-
-# Embeddings and scientific data
+# Large scientific data
 *.npy
 *.zarr
 *.h5
 *.hdf5
-*.pt
-*.pth
-*.ckpt
-*.safetensors
-*.sqlite
-*.db
+*.nc
 *.tif
 *.tiff
-*.nc
 *.parquet
+*.sqlite
+*.db
 *.geojson
 *.gpkg
 *.shp
 *.shx
 *.dbf
 
-# Generated training artifacts
-**/cache/
-**/__pycache__/
-
-# Generated evaluation figures and tables
-
-# Embeddings and large scientific arrays
-*.npy
-*.zarr
-*.h5
-*.hdf5
-
-# Model files
+# Training artifacts
 *.pt
 *.pth
 *.ckpt
 *.safetensors
-last_model.pt
-best_model.pt
-# Generated predictions
+**/checkpoints/
+**/runs/
+**/logs/
+*.log
+wandb/
+lightning_logs/
+events.out.tfevents.*
+
+# Full Basin2Vec embedding archives (distributed as a release asset)
+basin_embeddings_full.npz
+
+# Generated evaluation artifacts
+**/area_class_plots/
+**/cdf_figures/
+**/scalers/
+**/splits/
+**/*_partial.csv
+**/*_counts.csv
+**/*_year_coverage_*.csv
+**/*metrics_horizon1.csv
+**/*predictions_horizon1.csv
+**/predictions*.csv
+**/test_predictions*.csv
+**/train_predictions*.csv
+**/val_predictions*.csv
+**/recharge_classification_outputs/
 
 # Downloaded executables
 **/cloudflared
-
-# macOS metadata
-.DS_Store
-._*
-
-# Basin2Vec generated embeddings and outputs
-
-
-# macOS metadata
-.DS_Store
-._*
-
-# Spatial evaluation generated outputs
-
-**/area_class_plots/
-**/cdf_figures/
-**/*_partial.csv
-**/scalers/
-**/splits/
-
-# Large prediction files
-**/*_counts.csv
-**/test_predictions*.csv
-**/val_predictions*.csv
-**/train_predictions*.csv
-**/predictions*.csv
-**/*metrics_horizon1.csv
-**/*predictions_horizon1.csv
-**/*_year_coverage_*.csv
-# Training artifacts
-**/checkpoints/
-**/*.pt
-**/*.pth
-**/*.ckpt
-
-# Arrays and caches
-**/*.npy
-**/__pycache__/
-
-# Generated Basin2Vec embedding archives
-emb/src/evaluation_outputs/**/basin_embeddings_full.npz
