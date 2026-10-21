@@ -480,6 +480,13 @@ def main():
         print(f"[INFO] Checkpoints: {CHECKPOINT_DIR}")
         writer = SummaryWriter(str(RUN_DIR))
 
+    # The loader silently returns no pairs for a missing file.
+    if OVERLAP_WEIGHT > 0 and not OVERLAP_PAIRS_PARQUET.exists():
+        raise FileNotFoundError(
+            f"Overlap pairs not found: {OVERLAP_PAIRS_PARQUET}. "
+            "Check BASIN2VEC_DATA_ROOT or pass --overlap-weight 0."
+        )
+
     overlap_adjacency, overlap_pair_count = load_overlap_adjacency_weighted(
         str(OVERLAP_PAIRS_PARQUET)
     )

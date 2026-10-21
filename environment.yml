@@ -37,6 +37,9 @@ dependencies:
   # Embedding projections in evaluate_embeddings_monthly.py
   - umap-learn
 
+  # Tests
+  - pytest>=8
+
   # Notebooks
   - jupyterlab
   - ipykernel
