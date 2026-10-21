@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 from pathlib import Path
 import re
 
@@ -20,16 +21,21 @@ app.add_middleware(
 # --------------------------------------------------
 # Paths
 # --------------------------------------------------
-NPZ_PATH = Path(
-    "../emb/src/evaluation_outputs/"
-    "HCLV4_grouped_monthly_static_meta_areaaux_64d/basin_embeddings_full.npz"
-)
+APP_DIR = Path(__file__).resolve().parent
+REPO_ROOT = APP_DIR.parent
+DATA_ROOT = Path(os.environ.get("BASIN2VEC_DATA_ROOT", REPO_ROOT / "data"))
 
-INDEX_HTML = Path("static/index.html")
+# Row-wise Basin2Vec NPZ (labels, years, embeddings); see README.
+NPZ_PATH = Path(os.environ.get(
+    "BASIN2VEC_APP_NPZ",
+    REPO_ROOT / "emb/src/evaluation_outputs/"
+    "HCLV4_grouped_monthly_static_meta_areaaux_64d/basin_embeddings_full.npz",
+))
 
-GEOJSON_PATH = Path(
-    "/data/basin2vec/raw/gages-ii/us_selected_basins/basins.geojson"
-)
+INDEX_HTML = APP_DIR / "static" / "index.html"
+
+# Simplified basin polygons produced by app/geojson.py.
+GEOJSON_PATH = DATA_ROOT / "raw/gages-ii/us_selected_basins/basins.geojson"
 
 # --------------------------------------------------
 # Representation choice

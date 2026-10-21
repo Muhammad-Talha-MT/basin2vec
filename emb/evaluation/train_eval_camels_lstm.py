@@ -25,23 +25,22 @@ from torch.utils.data.distributed import DistributedSampler
 # CONFIG
 # ==========================================================
 
-CAMELS_ROOT = Path("/data/camels_us")
+SCRIPT_DIR = Path(__file__).resolve().parent
+REPO_ROOT = SCRIPT_DIR.parents[1]
+DATA_ROOT = Path(os.environ.get("BASIN2VEC_DATA_ROOT", REPO_ROOT / "data"))
+CAMELS_ROOT = Path(os.environ.get("CAMELS_ROOT", DATA_ROOT / "camels_us"))
 DAYMET_DIR = CAMELS_ROOT / "basin_mean_forcing" / "daymet"
 STREAMFLOW_DIR = CAMELS_ROOT / "usgs_streamflow"
 ATTR_DIR = CAMELS_ROOT / "camels_attributes_v2.0"
 
-INDEX_PARQUET = Path("../config/training_step5/sample_index.parquet")
+INDEX_PARQUET = REPO_ROOT / "emb/config/training_step5/sample_index.parquet"
 
-BASIN2VEC_NPZ = Path(
-    "../src/evaluation_outputs/HCLV4_grouped_monthly_static_meta_areaaux_64d/basin_embeddings_full.npz"
-)
+BASIN2VEC_NPZ = REPO_ROOT / "emb/src/evaluation_outputs/HCLV4_grouped_monthly_static_meta_areaaux_64d/basin_embeddings_full.npz"
 BASIN2VEC_ARRAY_KEY = "embeddings"
 
-ALPHAEARTH_NPZ = Path(
-    "alphaearth_embeddings/embeddings/alphaearth_annual_basin_embeddings_2017_2024_scale500m.npz"
-)
+ALPHAEARTH_NPZ = SCRIPT_DIR / "alphaearth_embeddings/embeddings/alphaearth_annual_basin_embeddings_2017_2024_scale500m.npz"
 
-OUT_DIR = Path("evaluation_outputs/camels_timerxl_static_comparison_only_atttributes")
+OUT_DIR = SCRIPT_DIR / "evaluation_outputs/camels_timerxl_static_comparison_only_atttributes"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 MODEL_NAME = "timerxl_static_token"

@@ -18,6 +18,7 @@ Main metrics:
     recharge_class based on annual_baseflow_mm
 """
 
+import os
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -29,10 +30,13 @@ from tqdm import tqdm
 # CONFIG
 # ==========================================================
 
-PARQUET_DIR = Path("/data/basin2vec/raw/daily_streamflow_usgs")
-GEOJSON_FILE = Path("/data/basin2vec/raw/gages-ii/us_selected_basins/basins.geojson")
+SCRIPT_DIR = Path(__file__).resolve().parent
+REPO_ROOT = SCRIPT_DIR.parents[1]
+DATA_ROOT = Path(os.environ.get("BASIN2VEC_DATA_ROOT", REPO_ROOT / "data"))
+PARQUET_DIR = DATA_ROOT / "raw/daily_streamflow_usgs"
+GEOJSON_FILE = DATA_ROOT / "raw/gages-ii/us_selected_basins/basins.geojson"
 
-OUT_DIR = Path("recharge_classification_outputs")
+OUT_DIR = SCRIPT_DIR / "recharge_classification_outputs"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 OUT_ANNUAL = OUT_DIR / "annual_streamflow_recharge_metrics.csv"

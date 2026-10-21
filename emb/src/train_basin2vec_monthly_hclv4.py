@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+import argparse
 import os
 import random
 import warnings
@@ -57,6 +58,15 @@ torch.set_float32_matmul_precision("high")
 # ------------------------------------------------------------
 # CONFIG
 # ------------------------------------------------------------
+# Data locations are resolved from BASIN2VEC_DATA_ROOT (default: <repo>/data).
+SCRIPT_DIR = Path(__file__).resolve().parent
+REPO_ROOT = SCRIPT_DIR.parents[1]
+DATA_ROOT = Path(os.environ.get("BASIN2VEC_DATA_ROOT", REPO_ROOT / "data"))
+CACHE_DIR = DATA_ROOT / "cache"
+CONFIG_DIR = REPO_ROOT / "emb" / "config" / "training_step5"
+
+RUN_NAME = "HCLV4_grouped_monthly_static_meta_areaaux_64d"
+
 NUM_EPOCHS = 100
 SEED = 42
 
@@ -72,27 +82,27 @@ EMB_DIM = 64
 
 COMPILE_MODEL = False
 
-INDEX_PARQUET = "../config/training_step5/sample_index.parquet"
+INDEX_PARQUET = CONFIG_DIR / "sample_index.parquet"
 
-GROUPED_ZARR_PATH = "/data/basin2vec/cache/patches_step4_grouped/grouped_monthly_static.zarr"
-MASK_ZARR_PATH = "/data/basin2vec/cache/static_masks.zarr"
+GROUPED_ZARR_PATH = CACHE_DIR / "patches_step4_grouped" / "grouped_monthly_static.zarr"
+MASK_ZARR_PATH = CACHE_DIR / "static_masks.zarr"
 
-OVERLAP_PAIRS_PARQUET = "/data/basin2vec/cache/basin_overlap_pairs.parquet"
-BASIN_METADATA = "/data/basin2vec/cache/metadata/basin_metadata.parquet"
+OVERLAP_PAIRS_PARQUET = CACHE_DIR / "basin_overlap_pairs.parquet"
+BASIN_METADATA = CACHE_DIR / "metadata" / "basin_metadata.parquet"
 
 BASIN_META_COLS = DEFAULT_BASIN_META_COLS
 
 AREA_AUX_WEIGHT = 0.03
+TEMPORAL_WEIGHT = 0.30
+OVERLAP_WEIGHT = 0.12
 
 # Keep month auxiliary off for speed/stability.
 # The objective is HCL-V4 + metadata + overlap + area auxiliary.
 PREDICT_MONTH_AUX = False
 MONTH_AUX_WEIGHT = 0.0
 
-CHECKPOINT_DIR = Path("checkpoints/HCLV4_grouped_monthly_static_meta_areaaux_64d")
-CHECKPOINT_DIR.mkdir(exist_ok=True, parents=True)
-
-RUN_DIR = "runs/HCLV4_grouped_monthly_static_meta_areaaux_64d"
+CHECKPOINT_DIR = SCRIPT_DIR / "checkpoints" / RUN_NAME
+RUN_DIR = SCRIPT_DIR / "runs" / RUN_NAME
 
 NUM_WORKERS = 8
 PREFETCH_FACTOR = 2
@@ -452,6 +462,9 @@ def main():
     np.random.seed(SEED + global_rank)
     random.seed(SEED + global_rank)
 
+    if is_main:
+        CHECKPOINT_DIR.mkdir(exist_ok=True, parents=True)
+
     use_cuda = device.type == "cuda"
     scaler = GradScaler("cuda", enabled=use_cuda)
 
@@ -463,25 +476,27 @@ def main():
         print(f"[INFO] COMPILE_MODEL: {COMPILE_MODEL}")
         print(f"[INFO] PREDICT_MONTH_AUX: {PREDICT_MONTH_AUX}")
         print(f"[INFO] GROUPED_ZARR_PATH: {GROUPED_ZARR_PATH}")
-        writer = SummaryWriter(RUN_DIR)
+        print(f"[INFO] Loss weights: temporal={TEMPORAL_WEIGHT}, overlap={OVERLAP_WEIGHT}, area_aux={AREA_AUX_WEIGHT}")
+        print(f"[INFO] Checkpoints: {CHECKPOINT_DIR}")
+        writer = SummaryWriter(str(RUN_DIR))
 
     overlap_adjacency, overlap_pair_count = load_overlap_adjacency_weighted(
-        OVERLAP_PAIRS_PARQUET
+        str(OVERLAP_PAIRS_PARQUET)
     )
 
     if is_main:
         print(f"[INFO] Loaded weighted overlap-aware basin pairs: {overlap_pair_count}")
 
     dataset = Basin2VecGroupedZarrDataset(
-        index_parquet=INDEX_PARQUET,
-        grouped_zarr_path=GROUPED_ZARR_PATH,
-        basin_metadata_path=BASIN_METADATA,
+        index_parquet=str(INDEX_PARQUET),
+        grouped_zarr_path=str(GROUPED_ZARR_PATH),
+        basin_metadata_path=str(BASIN_METADATA),
         basin_meta_cols=BASIN_META_COLS,
-        mask_zarr_path=MASK_ZARR_PATH,
+        mask_zarr_path=str(MASK_ZARR_PATH),
         require_done=True,
     )
 
-    metadata_df = build_sampler_metadata(dataset, INDEX_PARQUET)
+    metadata_df = build_sampler_metadata(dataset, str(INDEX_PARQUET))
 
     batches_per_epoch = len(dataset) // (BATCH_SIZE * world_size)
 
@@ -574,8 +589,8 @@ def main():
 
     criterion = HydrologyAwareContrastiveLossV4(
         temperature=0.15,
-        temporal_weight=0.30,
-        overlap_weight=0.12,
+        temporal_weight=TEMPORAL_WEIGHT,
+        overlap_weight=OVERLAP_WEIGHT,
         year_tau=8.0,
         meta_tau=1.5,
         min_negative_weight=0.20,
@@ -845,12 +860,14 @@ def main():
                         "neg_margin_high": criterion.neg_margin_high,
                     },
 
+                    "run_name": RUN_NAME,
+                    "seed": SEED,
                     "paths": {
-                        "index_parquet": INDEX_PARQUET,
-                        "grouped_zarr_path": GROUPED_ZARR_PATH,
-                        "mask_zarr_path": MASK_ZARR_PATH,
-                        "basin_metadata": BASIN_METADATA,
-                        "overlap_pairs_parquet": OVERLAP_PAIRS_PARQUET,
+                        "index_parquet": str(INDEX_PARQUET),
+                        "grouped_zarr_path": str(GROUPED_ZARR_PATH),
+                        "mask_zarr_path": str(MASK_ZARR_PATH),
+                        "basin_metadata": str(BASIN_METADATA),
+                        "overlap_pairs_parquet": str(OVERLAP_PAIRS_PARQUET),
                     },
                 },
                 ckpt_path,
@@ -864,5 +881,33 @@ def main():
     cleanup_ddp()
 
 
+def parse_args():
+    p = argparse.ArgumentParser(description="Train Basin2Vec (HCL-V4, grouped monthly/static).")
+    p.add_argument("--run-name", default=RUN_NAME,
+                   help="Name for checkpoints/<run-name> and runs/<run-name>.")
+    p.add_argument("--epochs", type=int, default=NUM_EPOCHS)
+    p.add_argument("--seed", type=int, default=SEED)
+    p.add_argument("--temporal-weight", type=float, default=TEMPORAL_WEIGHT,
+                   help="Weight of same-basin/other-year positives (0 disables).")
+    p.add_argument("--overlap-weight", type=float, default=OVERLAP_WEIGHT,
+                   help="Weight of overlapping-basin positives (0 disables).")
+    p.add_argument("--area-aux-weight", type=float, default=AREA_AUX_WEIGHT,
+                   help="Weight of the basin-area auxiliary loss (0 disables).")
+    p.add_argument("--num-workers", type=int, default=NUM_WORKERS)
+    return p.parse_args()
+
+
 if __name__ == "__main__":
+    args = parse_args()
+
+    RUN_NAME = args.run_name
+    CHECKPOINT_DIR = SCRIPT_DIR / "checkpoints" / RUN_NAME
+    RUN_DIR = SCRIPT_DIR / "runs" / RUN_NAME
+    NUM_EPOCHS = args.epochs
+    SEED = args.seed
+    TEMPORAL_WEIGHT = args.temporal_weight
+    OVERLAP_WEIGHT = args.overlap_weight
+    AREA_AUX_WEIGHT = args.area_aux_weight
+    NUM_WORKERS = args.num_workers
+
     main()

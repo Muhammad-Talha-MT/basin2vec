@@ -5,7 +5,7 @@
 #
 # Output:
 #
-#   /data/basin2vec/cache/patches_step4_grouped/grouped_monthly_static.zarr
+#   $BASIN2VEC_DATA_ROOT/cache/patches_step4_grouped/grouped_monthly_static.zarr
 #
 # Arrays:
 #
@@ -47,6 +47,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import shutil
 import time
 from pathlib import Path
@@ -60,21 +61,33 @@ from tqdm import tqdm
 import zarr
 from numcodecs import Blosc
 
-from basin2vec_dataset_monthly import Basin2VecMixedMonthlyDataset
+try:
+    from basin2vec_dataset_monthly import Basin2VecMixedMonthlyDataset
+except ImportError as error:
+    raise ImportError(
+        "build_grouped_monthly_static_zarr.py requires basin2vec_dataset_monthly.py, "
+        "which is not yet included in this repository. See the 'Known gaps' section "
+        "of README.md."
+    ) from error
 
 
 # ------------------------------------------------------------
-# Default paths
+# Default paths (data resolved from BASIN2VEC_DATA_ROOT, default <repo>/data)
 # ------------------------------------------------------------
-INDEX_PARQUET = "../config/training_step5/sample_index.parquet"
-INDEX_META_JSON = "../config/training_step5/sample_index_meta.json"
-NORM_STATS_JSON = "../config/training_step5/norm_stats.json"
+REPO_ROOT = Path(__file__).resolve().parents[2]
+DATA_ROOT = Path(os.environ.get("BASIN2VEC_DATA_ROOT", REPO_ROOT / "data"))
+CACHE_DIR = DATA_ROOT / "cache"
+CONFIG_DIR = REPO_ROOT / "emb" / "config" / "training_step5"
 
-MONTHLY_ZARR_ROOT = "/data/basin2vec/cache/patches_step4_monthly"
-ANNUAL_ZARR_ROOT = "/data/basin2vec/cache/patches_step4"
-MASK_ZARR_PATH = "/data/basin2vec/cache/static_masks.zarr"
+INDEX_PARQUET = str(CONFIG_DIR / "sample_index.parquet")
+INDEX_META_JSON = str(CONFIG_DIR / "sample_index_meta.json")
+NORM_STATS_JSON = str(CONFIG_DIR / "norm_stats.json")
 
-OUT_ZARR = "/data/basin2vec/cache/patches_step4_grouped/grouped_monthly_static.zarr"
+MONTHLY_ZARR_ROOT = str(CACHE_DIR / "patches_step4_monthly")
+ANNUAL_ZARR_ROOT = str(CACHE_DIR / "patches_step4")
+MASK_ZARR_PATH = str(CACHE_DIR / "static_masks.zarr")
+
+OUT_ZARR = str(CACHE_DIR / "patches_step4_grouped" / "grouped_monthly_static.zarr")
 
 MONTHLY_VARIABLES = [
     "prcp",

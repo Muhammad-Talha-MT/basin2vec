@@ -14,10 +14,10 @@ Main difference from AlphaEarth:
       basin and average those 128-D vectors locally.
 
 Recommended first smoke test:
-    python extract_tessera_basins_fast.py \
-        --basins-gpkg /data/basin2vec/raw/gages-ii/geopackage/gages_basins.gpkg \
-        --index-parquet ../config/training_step5/sample_index.parquet \
-        --out-dir evaluation_outputs/tessera_baseline \
+    python emb/evaluation/extract_tessera.py \
+        --basins-gpkg "$BASIN2VEC_DATA_ROOT/raw/gages-ii/geopackage/gages_basins.gpkg" \
+        --index-parquet emb/config/training_step5/sample_index.parquet \
+        --out-dir emb/evaluation/evaluation_outputs/tessera_baseline \
         --years 2024 \
         --scale 1000 \
         --sampling-mode adaptive \
@@ -27,17 +27,33 @@ Recommended first smoke test:
         --test-only
 
 Full run, once coverage is confirmed:
-    python extract_tessera_basins_fast.py \
-        --basins-gpkg /data/basin2vec/raw/gages-ii/geopackage/gages_basins.gpkg \
-        --index-parquet ../config/training_step5/sample_index.parquet \
-        --out-dir evaluation_outputs/tessera_baseline \
+    python emb/evaluation/extract_tessera.py \
+        --basins-gpkg "$BASIN2VEC_DATA_ROOT/raw/gages-ii/geopackage/gages_basins.gpkg" \
+        --index-parquet emb/config/training_step5/sample_index.parquet \
+        --out-dir emb/evaluation/evaluation_outputs/tessera_baseline \
         --years 2017-2024 \
         --scale 1000 \
         --sampling-mode adaptive \
         --max-points-per-basin 512 \
         --batch-size 32 \
         --workers 2
-python extract_tessera.py   --basins-gpkg /data/basin2vec/raw/gages-ii/geopackage/gages_basins.gpkg   --index-parquet emb/config/training_step5/sample_index.parquet   --out-dir /data/tessera/basin_outputs/tessera_embeddings   --years 2024   --scale 3000   --sampling-mode adaptive   --max-points-per-basin 128   --min-points-per-basin 8   --batch-size 64   --workers 2   --query-chunk-size 32768   --dataset-version v1.1   --dataset-variant cambridge   --cache-dir /data/tessera/geotessera_cache   --embeddings-dir /data/tessera
+Example full-CONUS configuration:
+    python emb/evaluation/extract_tessera.py \
+        --basins-gpkg "$BASIN2VEC_DATA_ROOT/raw/gages-ii/geopackage/gages_basins.gpkg" \
+        --index-parquet emb/config/training_step5/sample_index.parquet \
+        --out-dir "$BASIN2VEC_DATA_ROOT/tessera/basin_outputs/tessera_embeddings" \
+        --years 2024 \
+        --scale 3000 \
+        --sampling-mode adaptive \
+        --max-points-per-basin 128 \
+        --min-points-per-basin 8 \
+        --batch-size 64 \
+        --workers 2 \
+        --query-chunk-size 32768 \
+        --dataset-version v1.1 \
+        --dataset-variant cambridge \
+        --cache-dir "$BASIN2VEC_DATA_ROOT/tessera/geotessera_cache" \
+        --embeddings-dir "$BASIN2VEC_DATA_ROOT/tessera"
 
 Install:
     pip install geotessera geopandas pyarrow shapely pyproj tqdm pandas numpy
@@ -57,6 +73,7 @@ import argparse
 import hashlib
 import json
 import math
+import os
 import re
 import threading
 import time
@@ -73,6 +90,9 @@ from shapely.ops import transform as shapely_transform
 from shapely.prepared import prep
 from tqdm import tqdm
 
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+DATA_ROOT = Path(os.environ.get("BASIN2VEC_DATA_ROOT", REPO_ROOT / "data"))
 
 TESSERA_DIM = 128
 TESSERA_BANDS = [f"T{i:03d}" for i in range(TESSERA_DIM)]
@@ -923,8 +943,8 @@ def run_parallel_extraction(
 
 def main():
     parser = argparse.ArgumentParser(description="Parallel TESSERA basin embedding aggregation.")
-    parser.add_argument("--basins-gpkg", type=Path, default=Path("/data/basin2vec/raw/gages-ii/geopackage/gages_basins.gpkg"))
-    parser.add_argument("--index-parquet", type=Path, default=Path("../config/training_step5/sample_index.parquet"))
+    parser.add_argument("--basins-gpkg", type=Path, default=DATA_ROOT / "raw/gages-ii/geopackage/gages_basins.gpkg")
+    parser.add_argument("--index-parquet", type=Path, default=REPO_ROOT / "emb/config/training_step5/sample_index.parquet")
     parser.add_argument("--out-dir", type=Path, default=Path("evaluation_outputs/tessera_baseline"))
     parser.add_argument("--years", type=str, default="2017-2024")
     parser.add_argument("--scale", type=int, default=1000, help="Approximate point spacing in meters for adaptive/grid sampling.")

@@ -1,9 +1,12 @@
+import os
 from pathlib import Path
 import pandas as pd
 import numpy as np
 
 
-CAMELS_ROOT = Path("/data/camels_us")
+REPO_ROOT = Path(__file__).resolve().parents[2]
+DATA_ROOT = Path(os.environ.get("BASIN2VEC_DATA_ROOT", REPO_ROOT / "data"))
+CAMELS_ROOT = Path(os.environ.get("CAMELS_ROOT", DATA_ROOT / "camels_us"))
 DAYMET_DIR = CAMELS_ROOT / "basin_mean_forcing" / "daymet"
 STREAMFLOW_DIR = CAMELS_ROOT / "usgs_streamflow"
 ATTR_DIR = CAMELS_ROOT / "camels_attributes_v2.0"

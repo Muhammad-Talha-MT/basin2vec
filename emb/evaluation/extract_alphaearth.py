@@ -6,10 +6,10 @@ This script aggregates annual pixel-level AlphaEarth embeddings to GAGES-II
 basin polygons and saves one local parquet file per basin batch and year.
 
 Example:
-    python extract_alphaearth.py \
-        --basins-gpkg /data/basin2vec/raw/gages-ii/geopackage/gages_basins.gpkg \
-        --index-parquet ../config/training_step5/sample_index.parquet \
-        --out-dir evaluation_outputs/alphaearth_baseline \
+    python emb/evaluation/extract_alphaearth.py \
+        --basins-gpkg "$BASIN2VEC_DATA_ROOT/raw/gages-ii/geopackage/gages_basins.gpkg" \
+        --index-parquet emb/config/training_step5/sample_index.parquet \
+        --out-dir emb/evaluation/evaluation_outputs/alphaearth_baseline \
         --scale 500 \
         --batch-size 8 \
         --workers 6
@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -34,6 +35,9 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+DATA_ROOT = Path(os.environ.get("BASIN2VEC_DATA_ROOT", REPO_ROOT / "data"))
 
 ALPHAEARTH_COLLECTION_ID = "GOOGLE/SATELLITE_EMBEDDING/V1/ANNUAL"
 AE_BANDS = [f"A{i:02d}" for i in range(64)]
@@ -367,8 +371,8 @@ def run_parallel_extraction(
 
 def main():
     parser = argparse.ArgumentParser(description="Parallel AlphaEarth basin embedding aggregation.")
-    parser.add_argument("--basins-gpkg", type=Path, default=Path("/data/basin2vec/raw/gages-ii/geopackage/gages_basins.gpkg"))
-    parser.add_argument("--index-parquet", type=Path, default=Path("../config/training_step5/sample_index.parquet"))
+    parser.add_argument("--basins-gpkg", type=Path, default=DATA_ROOT / "raw/gages-ii/geopackage/gages_basins.gpkg")
+    parser.add_argument("--index-parquet", type=Path, default=REPO_ROOT / "emb/config/training_step5/sample_index.parquet")
     parser.add_argument("--out-dir", type=Path, default=Path("evaluation_outputs/alphaearth_baseline"))
     parser.add_argument("--years", type=str, default="2017-2024")
     parser.add_argument("--scale", type=int, default=500)

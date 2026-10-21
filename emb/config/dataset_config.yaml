@@ -1,4 +1,7 @@
-zarr_root: "/data/basin2vec/cache/patches_step4"
+# Reference inventory of the gridded input variables in the step-4 patch cache.
+# Not read by any script; kept as documentation of the data layout.
+# Paths are relative to $BASIN2VEC_DATA_ROOT.
+zarr_root: "cache/patches_step4"
 
 datasets:
   - name: "land_cover"
