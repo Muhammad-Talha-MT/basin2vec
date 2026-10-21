@@ -34,8 +34,15 @@ classifiers = [
 ]
 dependencies = [
     "numpy>=1.24",
-    "pooch>=1.8"
+    "pooch>=1.8",
+    "tqdm>=4.60"
 ]
+
+[project.urls]
+Homepage = "https://github.com/Muhammad-Talha-MT/basin2vec"
+Repository = "https://github.com/Muhammad-Talha-MT/basin2vec"
+Issues = "https://github.com/Muhammad-Talha-MT/basin2vec/issues"
+Releases = "https://github.com/Muhammad-Talha-MT/basin2vec/releases"
 
 [project.optional-dependencies]
 dev = [

@@ -15,11 +15,11 @@ DATA_DIRECTORY_NAME = f"basin2vec-pretrained-{DATA_VERSION}"
 ASSET_NAME = f"{DATA_DIRECTORY_NAME}.tar.gz"
 
 DATA_URL = (
-    "https://github.com/<user_name>/basin2vec/"
+    "https://github.com/Muhammad-Talha-MT/basin2vec/"
     f"releases/download/{DATA_VERSION}/{ASSET_NAME}"
 )
 
-# Replaced below using the generated .sha256 file.
+# From basin2vec-pretrained-v1.0.0.tar.gz.sha256 in the release.
 DATA_SHA256 = "sha256:28eeb48bec4f7c35705995d2a11edfcfc652fc9525077df9c1478b0754262ee4"
 
 REQUIRED_FILES = (

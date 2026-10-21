@@ -13,12 +13,16 @@ hydrology-aware contrastive objective. This repository contains:
 Pretrained embeddings cover **9,067 CONUS basins** (GAGES-II, keyed by USGS
 site ID) for every year from **1985 to 2024**.
 
+```bash
+pip install basin2vec
+```
+
 ```python
 from basin2vec import Basin2Vec
 
-b2v = Basin2Vec.from_pretrained(data_dir="data/basin2vec-pretrained-v1.0.0")
-z = b2v["04101500", 2018]      # basin-year embedding, shape (64,)
-z_avg = b2v["04101500"]        # basin embedding averaged over all years
+b2v = Basin2Vec.from_pretrained()  # downloads the embeddings once (88 MB), then caches them
+z = b2v["04101500", 2018]          # basin-year embedding for a USGS gauge, shape (64,)
+z_avg = b2v["04101500"]            # basin embedding averaged over all years
 ```
 
 ---
@@ -78,13 +82,14 @@ z_avg = b2v["04101500"]        # basin embedding averaged over all years
 
 ### Package only (Level 1)
 
-Requires Python 3.10 or later. The package depends only on NumPy and Pooch.
+Requires Python 3.10 or later. The package depends only on NumPy, Pooch and
+tqdm.
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-python -m pip install .
+pip install basin2vec
 ```
+
+To install from a clone of this repository instead, run `pip install .`.
 
 ### Full research environment (Levels 2 and 3)
 
@@ -103,20 +108,29 @@ The environment also installs this repository's package in editable mode.
 
 ### Get the data
 
-Download `basin2vec-pretrained-v1.0.0.tar.gz` (88 MB) from the release page
-and extract it into `data/`:
+`Basin2Vec.from_pretrained()` downloads the archive
+`basin2vec-pretrained-v1.0.0.tar.gz` (88 MB) from the
+[v1.0.0 release](https://github.com/Muhammad-Talha-MT/basin2vec/releases/tag/v1.0.0)
+the first time it is called. It checks the SHA-256 checksum, extracts the
+archive and caches it in your user cache directory, so later calls load
+from disk with no network access. Options:
+
+* `Basin2Vec.from_pretrained(cache_dir="...")`, or the environment variable
+  `BASIN2VEC_CACHE`, chooses a different cache location;
+* `Basin2Vec.from_pretrained(force_download=True)` downloads it again.
+
+For offline machines, download and extract the archive yourself:
 
 ```bash
 mkdir -p data/basin2vec-pretrained-v1.0.0
 tar -xzf basin2vec-pretrained-v1.0.0.tar.gz -C data/basin2vec-pretrained-v1.0.0
-```
-
-Check the download first if you like:
-
-```bash
 sha256sum basin2vec-pretrained-v1.0.0.tar.gz
 # 28eeb48bec4f7c35705995d2a11edfcfc652fc9525077df9c1478b0754262ee4
 ```
+
+and point the package at it with
+`Basin2Vec.from_pretrained(data_dir="data/basin2vec-pretrained-v1.0.0")` or
+`export BASIN2VEC_DATA_DIR="$PWD/data/basin2vec-pretrained-v1.0.0"`.
 
 The archive contains:
 
@@ -128,20 +142,12 @@ The archive contains:
 | `years.npy` | (40,) | 1985 to 2024 |
 | `metadata.json` | | version, shapes, dtypes |
 
-Instead of passing `data_dir` every time, you can set:
-
-```bash
-export BASIN2VEC_DATA_DIR="$PWD/data/basin2vec-pretrained-v1.0.0"
-```
-
-and then call `Basin2Vec.from_pretrained()` with no arguments.
-
 ### API
 
 ```python
 from basin2vec import Basin2Vec
 
-b2v = Basin2Vec.from_pretrained(data_dir="data/basin2vec-pretrained-v1.0.0")
+b2v = Basin2Vec.from_pretrained()
 print(b2v)
 # Basin2Vec(basins=9,067, years=40, dimension=64, data_version='v1.0.0')
 
@@ -166,7 +172,7 @@ python - <<'PY'
 import numpy as np
 from basin2vec import Basin2Vec
 
-b2v = Basin2Vec.from_pretrained(data_dir="data/basin2vec-pretrained-v1.0.0")
+b2v = Basin2Vec.from_pretrained()
 z = b2v["04101500", 2018]
 
 assert len(b2v) == 9067 and b2v.embedding_dim == 64
@@ -209,8 +215,10 @@ The benchmark scripts read one row per basin-year. Recreate that file from the
 public archive:
 
 ```bash
+B2V_DIR=$(python -c "from basin2vec import Basin2Vec; print(Basin2Vec.from_pretrained().data_directory)")
+
 python scripts/import_public_embeddings.py \
-  --source data/basin2vec-pretrained-v1.0.0 \
+  --source "$B2V_DIR" \
   --output emb/src/evaluation_outputs/HCLV4_grouped_monthly_static_meta_areaaux_64d/basin_embeddings_full.npz
 ```
 
@@ -346,14 +354,15 @@ run from any directory.
 | --- | --- | --- |
 | `BASIN2VEC_DATA_ROOT` | `<repo>/data` | raw inputs and training caches |
 | `CAMELS_ROOT` | `$BASIN2VEC_DATA_ROOT/camels_us` | CAMELS-US benchmarks |
-| `BASIN2VEC_DATA_DIR` | (package cache) | extracted pretrained archive for the `basin2vec` package |
+| `BASIN2VEC_DATA_DIR` | (unset) | use an already extracted pretrained archive instead of downloading |
+| `BASIN2VEC_CACHE` | user cache directory | where the package stores the downloaded archive |
 | `BASIN2VEC_APP_NPZ` | main model's row-wise NPZ | embeddings shown by the app |
 
 Expected contents of `$BASIN2VEC_DATA_ROOT` (`data/` is git-ignored):
 
 ```text
 data/
-├── basin2vec-pretrained-v1.0.0/          # Level 1: public archive
+├── basin2vec-pretrained-v1.0.0/          # optional offline copy of the public archive
 ├── camels_us/                            # Level 2: CAMELS-US
 ├── raw/
 │   ├── gages-ii/geopackage/gages_basins.gpkg          # GAGES-II basin polygons
