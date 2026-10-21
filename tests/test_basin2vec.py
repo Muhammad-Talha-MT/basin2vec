@@ -134,3 +134,11 @@ def test_env_data_dir_incomplete(data_dir: Path, monkeypatch):
     monkeypatch.setenv("BASIN2VEC_DATA_DIR", str(data_dir))
     with pytest.raises(RuntimeError):
         fetch_pretrained_data()
+
+
+def test_download_url_is_configured():
+    from basin2vec import _download
+
+    assert _download.DATA_URL.startswith("https://")
+    assert "<" not in _download.DATA_URL
+    assert _download.DATA_URL.endswith(_download.ASSET_NAME)
