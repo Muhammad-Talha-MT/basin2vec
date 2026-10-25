@@ -50,8 +50,13 @@ def parse_args():
                    help="Also available: ealstm, timemixer, moirai.")
     p.add_argument("--static-sources", nargs="+",
                    default=["attributes", "basin2vec", "alphaearth", "tessera", "satclip"],
-                   choices=["attributes", "basin2vec", "alphaearth", "tessera", "satclip"])
+                   choices=["attributes", "basin2vec", "alphaearth", "tessera", "satclip", "metadata", "attributes_metadata"])
     p.add_argument("--seq-lengths", nargs="+", type=int, default=[365, 120])
+    p.add_argument("--basin2vec-parquet", type=Path, default=None,
+                   help="Basin-level Basin2Vec descriptors (site_id, z_000...), e.g. from "
+                        "emb/src/extract_basin2vec_ablation_embeddings.py. Used instead of --basin2vec-npz.")
+    p.add_argument("--seed", type=int, default=42,
+                   help="Base random seed. The Round-2 ablations used the pretraining seed here.")
     return p.parse_args()
 
 
@@ -64,6 +69,7 @@ ATTR_DIR = CAMELS_ROOT / "camels_attributes_v2.0"
 INDEX_PARQUET = REPO_ROOT / "emb/config/training_step5/sample_index.parquet"
 
 BASIN2VEC_NPZ = ARGS.basin2vec_npz
+BASIN2VEC_PARQUET = ARGS.basin2vec_parquet
 BASIN2VEC_ARRAY_KEY = "embeddings"
 
 ALPHAEARTH_NPZ = SCRIPT_DIR / "alphaearth_embeddings/embeddings/alphaearth_annual_basin_embeddings_2017_2024_scale500m.npz"
@@ -107,7 +113,7 @@ BASIN2VEC_USAGE_MODE = "aggregated_static"
 ALPHAEARTH_USAGE_MODE = "aggregated_static"
 
 
-SEED = 42
+SEED = ARGS.seed
 BATCH_SIZE_PER_GPU = 128
 NUM_WORKERS_PER_GPU = 4
 PREFETCH_FACTOR = 2
@@ -603,6 +609,115 @@ def collapse_duplicate_annual_rows(meta: pd.DataFrame, emb: np.ndarray):
         out[(sid, int(yr))] = l2_normalize(z)[0].astype(np.float32)
 
     return out
+
+
+# Basin metadata used as a descriptor in its own right (reviewer-requested baseline).
+# These are the same 11 standardized columns that Basin2Vec receives through metadata
+# conditioning (emb/src/basin2vec_dataset_grouped.py: DEFAULT_BASIN_META_COLS).
+BASIN_METADATA_PARQUET = DATA_ROOT / "cache" / "metadata" / "basin_metadata.parquet"
+BASIN_META_COLS = [
+    "log_area_km2_z",
+    "log_bbox_width_km_z",
+    "log_bbox_height_km_z",
+    "log_patch_pixel_width_km_z",
+    "log_patch_pixel_height_km_z",
+    "log_patch_pixel_area_km2_z",
+    "bbox_fill_fraction_z",
+    "compactness_z",
+    "solidity_z",
+    "log_shape_index_z",
+    "log_overlap_degree_z",
+]
+
+
+def read_basin_metadata_static() -> Dict[str, np.ndarray]:
+    df = pd.read_parquet(BASIN_METADATA_PARQUET)
+    missing = [c for c in BASIN_META_COLS if c not in df.columns]
+    if missing:
+        raise KeyError(f"{BASIN_METADATA_PARQUET} is missing columns: {missing}")
+    static = {}
+    for _, row in df[["site_id"] + BASIN_META_COLS].iterrows():
+        sid = normalize_site_id(row["site_id"])
+        if sid is None:
+            continue
+        z = np.nan_to_num(row[BASIN_META_COLS].to_numpy(dtype=np.float32), nan=0.0, posinf=0.0, neginf=0.0)
+        static[sid] = z
+    rprint(f"Loaded basin metadata descriptor: {len(static)} basins, dim={len(BASIN_META_COLS)}")
+    return static
+
+
+def read_attributes_plus_metadata_static() -> Dict[str, np.ndarray]:
+    """CAMELS attributes concatenated with the basin metadata vector."""
+    attrs = read_camels_attributes_static()
+    meta = read_basin_metadata_static()
+    static = {sid: np.concatenate([attrs[sid], meta[sid]]).astype(np.float32) for sid in attrs if sid in meta}
+    rprint(f"Loaded attributes + metadata descriptor: {len(static)} basins")
+    return static
+
+
+def load_basin2vec_parquet_embeddings(parquet_path: Path) -> Dict[str, np.ndarray]:
+    """
+    Load an already-extracted Eq. 14 basin descriptor table (site_id, z_000 ...).
+    The extractor has already averaged the unaugmented basin-year embeddings over
+    all available pretraining years and L2-normalized them, so years are not
+    averaged again here.
+    """
+    parquet_path = Path(parquet_path)
+    if not parquet_path.exists():
+        raise FileNotFoundError(f"Basin2Vec parquet not found: {parquet_path}")
+
+    df = pd.read_parquet(parquet_path)
+    if "site_id" not in df.columns:
+        raise KeyError(f"{parquet_path} must contain a 'site_id' column. Available columns: {df.columns.tolist()[:20]}")
+
+    emb_cols = sorted([c for c in df.columns if re.fullmatch(r"z_\d+", str(c))], key=lambda x: int(str(x).split("_")[1]))
+    if not emb_cols:
+        emb_cols = sorted([c for c in df.columns if re.fullmatch(r"emb_\d+", str(c))], key=lambda x: int(str(x).split("_")[1]))
+    if not emb_cols:
+        raise KeyError(f"No embedding columns found in {parquet_path}. Expected z_000... or emb_000... columns.")
+
+    df = df.copy()
+    df["site_id"] = [normalize_site_id(x) for x in df["site_id"]]
+    df = df[df["site_id"].notna()].reset_index(drop=True)
+
+    Z = np.nan_to_num(df[emb_cols].to_numpy(dtype=np.float32), nan=0.0, posinf=0.0, neginf=0.0)
+    norms = np.linalg.norm(Z, axis=1)
+    if np.any(norms <= 1e-12):
+        raise RuntimeError(f"{parquet_path} contains {int(np.sum(norms <= 1e-12))} zero-norm basin descriptors.")
+    # Already unit-norm; normalize once to remove serialization round-off.
+    Z = l2_normalize(Z)
+
+    tmp = pd.DataFrame({"site_id": df["site_id"].astype(str)})
+    tmp["row"] = np.arange(len(tmp))
+    static = {}
+    duplicate_counts = 0
+    for sid, sub in tmp.groupby("site_id", sort=True):
+        idx = sub["row"].to_numpy(dtype=np.int64)
+        duplicate_counts += len(idx) - 1
+        static[sid] = l2_normalize(Z[idx].mean(axis=0, keepdims=True))[0].astype(np.float32)
+
+    if len(static) == 0:
+        raise RuntimeError(f"No valid Basin2Vec descriptors loaded from {parquet_path}")
+
+    dim = int(len(next(iter(static.values()))))
+    final_norms = np.asarray([np.linalg.norm(v) for v in static.values()], dtype=np.float64)
+    rprint(
+        f"Loaded Basin2Vec parquet: {parquet_path}\n"
+        f"  basins={len(static)}, dim={dim}, duplicates_collapsed={duplicate_counts}, seed={SEED}\n"
+        f"  norm mean/std={final_norms.mean():.6f}/{final_norms.std():.6f}"
+    )
+    save_json({
+        "parquet": str(parquet_path),
+        "seed": int(SEED),
+        "n_rows": int(len(df)),
+        "n_basins": int(len(static)),
+        "embedding_dim": dim,
+        "duplicate_rows_collapsed": int(duplicate_counts),
+        "norm_mean": float(final_norms.mean()),
+        "norm_std": float(final_norms.std()),
+        "embedding_columns": emb_cols,
+    }, OUT_DIR / "basin2vec_parquet_load_manifest.json")
+    return static
 
 
 def load_basin2vec_annual_embeddings(npz_path: Path, index_parquet: Path, years_keep: List[int]):
@@ -2359,7 +2474,11 @@ def main():
     all_static_sources = {}
 
     if "basin2vec" in STATIC_SOURCES:
-        if BASIN2VEC_USAGE_MODE == "aggregated_static":
+        if BASIN2VEC_PARQUET is not None:
+            if BASIN2VEC_USAGE_MODE != "aggregated_static":
+                raise ValueError("--basin2vec-parquet holds basin-level descriptors and needs BASIN2VEC_USAGE_MODE='aggregated_static'.")
+            all_static_sources["basin2vec"] = load_basin2vec_parquet_embeddings(BASIN2VEC_PARQUET)
+        elif BASIN2VEC_USAGE_MODE == "aggregated_static":
             all_static_sources["basin2vec"] = load_basin2vec_aggregated_embeddings(
                 BASIN2VEC_NPZ,
                 INDEX_PARQUET,
@@ -2396,6 +2515,10 @@ def main():
 
     if "attributes" in STATIC_SOURCES:
         all_static_sources["attributes"] = read_camels_attributes_static()
+    if "metadata" in STATIC_SOURCES:
+        all_static_sources["metadata"] = read_basin_metadata_static()
+    if "attributes_metadata" in STATIC_SOURCES:
+        all_static_sources["attributes_metadata"] = read_attributes_plus_metadata_static()
 
     basin_data_raw, static_sources, common_basins = restrict_to_common_basins(
         basin_data=basin_data_raw,
@@ -2441,6 +2564,8 @@ def main():
             "basin2vec_usage": "aggregated static Basin2Vec vector: average over BASIN2VEC_YEARS per basin",
             "tessera_usage": "static TESSERA basin descriptor: average over TESSERA_AGG_YEARS per basin",
             "satclip_usage": "static SatCLIP basin descriptor: average over SATCLIP_AGG_YEARS per basin",
+            "seed": int(SEED),
+            "basin2vec_parquet": str(BASIN2VEC_PARQUET) if BASIN2VEC_PARQUET is not None else None,
         }, OUT_DIR / "benchmark_config_summary.json")
 
     scaler_obj = None

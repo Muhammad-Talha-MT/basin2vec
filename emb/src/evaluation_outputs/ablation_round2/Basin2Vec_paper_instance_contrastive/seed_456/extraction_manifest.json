@@ -1,0 +1,98 @@
+{
+  "checkpoint": "emb/src/checkpoints/ablation_round2/Basin2Vec_paper_instance_contrastive/seed_456/epoch_5.pt",
+  "checkpoint_epoch": 5,
+  "variant": "instance_contrastive",
+  "seed": 456,
+  "base_config": "paper",
+  "experiment_name": "Basin2Vec_paper_instance_contrastive",
+  "extraction": {
+    "unaugmented": true,
+    "model_eval": true,
+    "torch_inference_mode": true,
+    "amp": true,
+    "world_size": 4,
+    "batch_size_per_rank": 64,
+    "num_workers_per_rank": 8
+  },
+  "model": {
+    "variant_config": {
+      "name": "instance_contrastive",
+      "description": "Standard instance-level contrastive objective: only paired augmented views are positives; relation-aware temporal/overlap/metadata/negative-margin mechanisms are disabled; encoder and area regularization remain unchanged",
+      "use_monthly_branch": true,
+      "use_static_branch": true,
+      "metadata_fusion": "gated",
+      "use_area_head": true,
+      "temporal_weight": 0.0,
+      "overlap_weight": 0.0,
+      "use_meta_denominator": false,
+      "meta_positive_weight": 0.0,
+      "meta_positive_threshold": null,
+      "neg_weight": 0.0,
+      "area_aux_weight": 0.05,
+      "temperature": 0.15,
+      "year_tau": 8.0,
+      "meta_tau": 1.5,
+      "min_negative_weight": 0.2,
+      "neg_margin_low": 0.2,
+      "neg_margin_high": 0.6
+    },
+    "use_monthly_branch": true,
+    "use_static_branch": true,
+    "metadata_fusion": "gated",
+    "use_area_head": true,
+    "monthly_in_channels": 5,
+    "static_in_channels": 30,
+    "emb_dim": 64,
+    "months_per_year": 12,
+    "basin_meta_cols": [
+      "log_area_km2_z",
+      "log_bbox_width_km_z",
+      "log_bbox_height_km_z",
+      "log_patch_pixel_width_km_z",
+      "log_patch_pixel_height_km_z",
+      "log_patch_pixel_area_km2_z",
+      "bbox_fill_fraction_z",
+      "compactness_z",
+      "solidity_z",
+      "log_shape_index_z",
+      "log_overlap_degree_z"
+    ],
+    "temporal_layers": 1,
+    "temporal_heads": 4
+  },
+  "data_paths": {
+    "index_parquet": "../config/training_step5/sample_index.parquet",
+    "grouped_zarr_path": "$BASIN2VEC_DATA_ROOT/cache/patches_step4_grouped/grouped_monthly_static.zarr",
+    "mask_zarr_path": "$BASIN2VEC_DATA_ROOT/cache/static_masks.zarr",
+    "basin_metadata": "$BASIN2VEC_DATA_ROOT/cache/metadata/basin_metadata.parquet"
+  },
+  "outputs": {
+    "basin_year_embeddings": "embeddings_ablation_round2/Basin2Vec_paper_instance_contrastive/seed_456/basin_year_embeddings.parquet",
+    "basin_embeddings_eq14": "embeddings_ablation_round2/Basin2Vec_paper_instance_contrastive/seed_456/basin_embeddings.parquet"
+  },
+  "counts": {
+    "basin_year_rows": 362680,
+    "basins": 9067,
+    "embedding_dim": 64,
+    "min_year": 1985,
+    "max_year": 2024,
+    "min_years_per_basin": 40,
+    "max_years_per_basin": 40
+  },
+  "validation": {
+    "basin_year_norm_mean": 1.0,
+    "basin_year_norm_std": 6.262605012352651e-08,
+    "basin_year_norm_min": 0.9999997019767761,
+    "basin_year_norm_max": 1.000000238418579,
+    "eq14_norm_mean": 1.0,
+    "eq14_norm_std": 6.353750592325014e-08,
+    "eq14_norm_min": 0.9999997615814209,
+    "eq14_norm_max": 1.000000238418579,
+    "nan_count_basin_year": 0,
+    "nan_count_basin": 0
+  },
+  "aggregation": {
+    "equation": "Normalize(mean_y(z_b,y))",
+    "description": "Basin-year embeddings are generated from unaugmented inputs, averaged over all available pretraining years for each basin, then L2 normalized."
+  }
+}

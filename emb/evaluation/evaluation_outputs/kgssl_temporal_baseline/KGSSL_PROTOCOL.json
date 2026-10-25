@@ -1,0 +1,49 @@
+{
+  "method": "KGSSL unsupervised L_rec + L_cont",
+  "kgssl_driver_response_columns": [
+    "prcp",
+    "srad",
+    "tmax",
+    "tmin",
+    "vp",
+    "discharge"
+  ],
+  "kgssl_embedding_information_period": [
+    "1990-01-01",
+    "2009-12-31"
+  ],
+  "kgssl_test_period_discharge_used_for_embedding": false,
+  "downstream_model_past_discharge_input": false,
+  "downstream_train_period": [
+    "1990-01-01",
+    "2009-12-31"
+  ],
+  "downstream_eval_period": [
+    "2010-01-01",
+    "2014-12-31"
+  ],
+  "exact_common_basin_csv": "evaluation_outputs/temporal_split_HCLV4_grouped_monthly_static_meta_areaaux_64d_ablation_no_temporal/common_temporal_basins.csv",
+  "n_exact_basins": 671,
+  "kgssl_config": {
+    "epochs": 100,
+    "batch_basins": 32,
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "window": 365,
+    "hidden": 64,
+    "temperature": 0.1,
+    "lambda_rec": 1.0,
+    "lambda_cont": 1.0,
+    "pairs_per_basin_per_epoch": 1,
+    "seed": 42
+  },
+  "paper_details_followed": {
+    "window": 365,
+    "stride_for_embedding_generation": 183,
+    "encoder": "1-layer BiLSTM",
+    "hidden_units": 64,
+    "bidirectional_states": "forward + backward final hidden states",
+    "loss": "L_rec + L_cont (no pseudo-inverse/static-attribute supervision)",
+    "final_basin_embedding": "mean of sequence embeddings from training period only"
+  }
+}

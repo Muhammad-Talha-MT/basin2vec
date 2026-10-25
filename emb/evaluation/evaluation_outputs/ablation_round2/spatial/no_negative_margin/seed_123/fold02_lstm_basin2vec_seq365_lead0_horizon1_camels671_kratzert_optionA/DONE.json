@@ -1,0 +1,14 @@
+{
+  "status": "done",
+  "fold_id": 2,
+  "model_name": "lstm",
+  "static_source": "basin2vec",
+  "seq_len": 365,
+  "lead": 0,
+  "horizon": 1,
+  "best_epoch": 20,
+  "best_val_loss": 0.09268793111374593,
+  "finished_time": "2026-08-19 12:11:05",
+  "global_metrics_file": "downstream_ablation_round2/spatial/no_negative_margin/seed_123/fold02_lstm_basin2vec_seq365_lead0_horizon1_camels671_kratzert_optionA/test_global_metrics_horizon1.csv",
+  "per_basin_summary_file": "downstream_ablation_round2/spatial/no_negative_margin/seed_123/fold02_lstm_basin2vec_seq365_lead0_horizon1_camels671_kratzert_optionA/test_per_basin_summary_horizon1.csv"
+}

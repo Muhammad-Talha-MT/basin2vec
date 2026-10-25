@@ -1,0 +1,2 @@
+ablation_variant,embedding_seed,downstream_seed,model_name,static_source,seq_len,lead_mode,horizon,lead,eval_split,best_epoch,best_val_loss,static_dim,n_train_samples,n_val_samples_future_years,n_eval_samples,n_basins,NSE,KGE,RMSE,MAE,Pearson_r,n_samples
+instance_contrastive,456,456,lstm,basin2vec,365,lead0_horizon1_same_day_temporal_prediction,1,0,future_years_same_basins,11,0.10222097022389794,64,4654764,1158331,1158331,671,0.9014643881142281,0.9254518620639882,383.56571696223637,99.03996882286359,0.9494647799659723,1158331

@@ -61,14 +61,7 @@ from tqdm import tqdm
 import zarr
 from numcodecs import Blosc
 
-try:
-    from basin2vec_dataset_monthly import Basin2VecMixedMonthlyDataset
-except ImportError as error:
-    raise ImportError(
-        "build_grouped_monthly_static_zarr.py requires basin2vec_dataset_monthly.py, "
-        "which is not yet included in this repository. See the 'Known gaps' section "
-        "of README.md."
-    ) from error
+from basin2vec_dataset_monthly import Basin2VecMixedMonthlyDataset
 
 
 # ------------------------------------------------------------

@@ -55,10 +55,14 @@ z_avg = b2v["04101500"]            # basin embedding averaged over all years
 │   │   ├── dataset_config.yaml       # inventory of gridded input variables
 │   │   └── training_step5/           # normalisation stats and sample-index metadata
 │   ├── src/                          # Basin2Vec model, loss, dataset, training, evaluation
+│   │   ├── *_ablation*.py, run_ablation_*.sh  # Round-2 ablation suite (Table 5)
 │   │   └── evaluation_outputs/       # intrinsic metrics for the main model and ablations
 │   └── evaluation/
 │       ├── spatial_split.py          # ungauged-basin (6-fold spatial) streamflow benchmark
 │       ├── temporal_split.py         # future-years streamflow benchmark
+│       ├── kgssl_temporal_baseline.py   # KG-SSL baseline (Table 3)
+│       ├── run_ablation_downstream.sh   # Round-2 ablations: downstream LSTM runs
+│       ├── aggregate_ablation_results.py # Round-2 ablations: mean ± std over seeds
 │       ├── extract_alphaearth.py     # AlphaEarth baseline embeddings (Earth Engine)
 │       ├── extract_tessera.py        # TESSERA baseline embeddings (GeoTessera)
 │       ├── streamflow_regime.py      # baseflow/recharge classes from USGS streamflow
@@ -271,6 +275,38 @@ An interrupted run resumes when restarted with the same `--out-dir`:
 finished experiments are skipped and unfinished ones continue from their
 last checkpoint.
 
+Two more options are used by the Round-2 ablations: `--basin2vec-parquet`
+reads basin-level descriptors (`site_id`, `z_000`, ...) instead of
+`--basin2vec-npz`, and `--seed` sets the base random seed (default 42).
+
+Two extra `--static-sources` baselines isolate the effect of the basin
+metadata that Basin2Vec receives (log drainage area and 10 shape descriptors,
+read from `cache/metadata/basin_metadata.parquet`): `metadata` uses only those
+11 values, and `attributes_metadata` appends them to the CAMELS attributes.
+The CAMELS attribute set differs between the two benchmarks: `temporal_split.py`
+uses 17 attributes including drainage area, `spatial_split.py` uses 12 without
+it. No complete results for these two baselines are shipped yet.
+
+### KG-SSL baseline (Table 3)
+
+`kgssl_temporal_baseline.py` reimplements the unsupervised KG-SSL setting
+(reconstruction + contrastive loss, Ghosh et al., KDD 2022) from the paper, as
+no official code was available. It pretrains KG-SSL once (seed 42) on
+1990–2009 forcings and observed streamflow, builds one fixed descriptor per
+basin from that period only, and evaluates it with the temporal benchmark's
+LSTM (L = 365, lead 0) for downstream seeds 42, 123 and 456, on the same 671
+basins.
+
+```bash
+python emb/evaluation/kgssl_temporal_baseline.py
+# -> emb/evaluation/evaluation_outputs/reproduced_kgssl_temporal_baseline/
+# Shipped result: emb/evaluation/evaluation_outputs/kgssl_temporal_baseline/
+```
+
+`kgssl_temporal_results_mean_std.csv` reports the population standard
+deviation over seeds (`ddof=0`); Table 3 reports the sample standard
+deviation (`ddof=1`) of the values in `kgssl_temporal_results_per_seed.csv`.
+
 ### Analysis notebooks
 
 `emb/evaluation/analysis_of_embeddings.ipynb` and
@@ -280,6 +316,18 @@ cell first. Each later cell is self-contained. Some cells also need
 GAGES-II polygons and the cached basin metadata and overlap pairs (see
 [data layout](#data-layout-and-configuration)), plus the HUC-2 Watershed
 Boundary Dataset for the overview maps.
+
+Data behind the paper's results figures:
+
+| Figure | Data in this repository |
+| --- | --- |
+| Fig. 3, effective rank | `result_figures/paper_results_rq1_effective_rank/` |
+| Fig. 4, metadata consistency | `result_figures/paper_results_metadata_pair_alignment_all_models/` (pair lists, summary, raw distances) |
+| Fig. 5, per-basin KGE CDFs | `evaluation_outputs/final_*_split_results/cdf_figures/` and the per-basin `*per_basin_metrics_horizon1.csv` in each experiment folder |
+| Fig. 6, basin-size classes | `evaluation_outputs/final_spatial_split_results/area_class_plots/` |
+| Tables 2 and 4 | `PAPER_TABLE_*` and `KFOLD_AGGREGATED_*` files in `evaluation_outputs/final_*_split_results/` |
+| Table 3, KG-SSL | `evaluation_outputs/kgssl_temporal_baseline/` |
+| Table 5, ablations | `evaluation_outputs/ablation_round2/summary/` and `evaluation_outputs/ablation/` |
 
 ---
 
@@ -341,6 +389,64 @@ torchrun --nproc_per_node=4 emb/evaluation/spatial_split.py \
 
 Every checkpoint saves its loss weights (`loss_config`, `area_aux_weight`) and
 data paths, so you can always check which settings produced it.
+
+### Round-2 ablation suite (Table 5)
+
+`emb/src/train_basin2vec_ablation_suite.py` trains every encoder and objective
+ablation from one script, three seeds each (42, 123, 456). The ablation model
+and loss live in separate files (`attention_encoder_monthly_ablation.py`,
+`hydrology_aware_contrastive_loss_ablation.py`), so the main implementation is
+unchanged. Variants:
+
+| Variant | Change |
+| --- | --- |
+| `no_monthly_branch` | monthly (dynamic) branch removed |
+| `no_static_branch` | quasi-static branch removed |
+| `no_metadata_encoder` | metadata MLP and gate removed from the encoder (the loss still uses metadata) |
+| `metadata_concat` | gated metadata fusion replaced by concatenation + projection |
+| `no_meta_denominator` | no metadata relief in the contrastive denominator (`d_ij = 1`) |
+| `meta_as_positive` | metadata similarity added as a positive weight (0.12 above similarity 0.80) instead of denominator relief |
+| `no_negative_margin` | negative-margin loss off |
+| `instance_contrastive` | only the two augmented views are positives; temporal, overlap, metadata and margin terms off |
+| `full`, `no_temporal_positive`, `no_overlap_positive`, `no_area_regularization` | supported, but no shipped results |
+
+`--base-config paper` sets (λ_t, λ_o, λ_a) = (0.35, 0.12, 0.05);
+`--base-config uploaded` sets (0.30, 0.12, 0.03), the weights of the released
+model. The other loss settings match the released model. Any of them can be
+overridden (`--temperature`, `--temporal-weight`, `--year-tau`, ...) for
+sensitivity runs.
+
+```bash
+# 1. Pretrain -> emb/src/checkpoints/ablation_round2/Basin2Vec_<base>_<variant>/seed_<seed>/
+NPROC_PER_NODE=4 BASE_CONFIG=paper EPOCHS=100 emb/src/run_ablation_pretraining.sh
+
+# 2. Extract basin-year and Eq. 14 basin embeddings (no augmentation)
+#    -> emb/src/evaluation_outputs/ablation_round2/Basin2Vec_<base>_<variant>/seed_<seed>/
+EPOCH=100 emb/src/run_ablation_extraction.sh
+
+# 3. Downstream LSTM (L = 365), temporal and spatial; the pretraining seed is also
+#    the downstream seed -> emb/evaluation/evaluation_outputs/reproduced_ablation_round2/
+emb/evaluation/run_ablation_downstream.sh
+
+# 4. Mean ± sample std over seeds -> <root>/summary/
+python emb/evaluation/aggregate_ablation_results.py \
+  --root emb/evaluation/evaluation_outputs/reproduced_ablation_round2
+```
+
+Shipped results are in `emb/evaluation/evaluation_outputs/ablation_round2/`
+(per seed, plus `summary/`), and each run's training configuration and
+extraction manifest are in `emb/src/evaluation_outputs/ablation_round2/`. They
+were produced with these settings, which differ from the main model's:
+
+* `--base-config paper` (0.35 / 0.12 / 0.05), while the released model uses 0.30 / 0.12 / 0.03;
+* `EPOCHS=8`, with embeddings extracted from the epoch-5 checkpoint
+  (`EPOCH=5`), while the released model was trained for 100 epochs;
+* descriptors averaged over all 40 years (1985–2024), while the main
+  benchmarks average Basin2Vec over 1990–2014.
+
+The summary reports two spatial statistics: the mean of the six per-fold
+medians (as in `KFOLD_AGGREGATED_*.csv`) and the median over all 671 held-out
+basins pooled across folds (from the per-fold `test_per_basin_metrics_horizon1.csv`).
 
 ---
 
@@ -419,11 +525,17 @@ The following parts of the pipeline are not yet in this repository:
   patch caches (`cache/patches_step4*`), `static_masks.zarr`,
   `basin_overlap_pairs.parquet`, `metadata/basin_metadata.parquet` and
   `emb/config/training_step5/sample_index.parquet` from raw sources.
-* **`basin2vec_dataset_monthly.py`**, which `build_grouped_monthly_static_zarr.py`
-  imports. Without it, the build script stops with an explicit error.
 * **Converting baseline extraction output to NPZ.** `extract_alphaearth.py` and
   `extract_tessera.py` write per-batch parquet files; the step that merged
   them into the shipped `*_embeddings.npz` files is not included.
+* **Code for the RQ1 effective-rank and metadata-consistency figures.** Their
+  outputs are in `emb/evaluation/result_figures/paper_results_rq1_effective_rank/`
+  and `emb/evaluation/result_figures/paper_results_metadata_pair_alignment_all_models/`.
+* **Round-2 ablation embeddings.** The per-seed `basin_embeddings.parquet`
+  files that the shipped ablation results were computed from (about 3 MB each)
+  are not distributed.
+* **Downstream results for the main-trainer `no_area` ablation.** Only its
+  intrinsic metrics are in `emb/src/evaluation_outputs/`.
 
 Levels 1 and 2 don't depend on any of these.
 

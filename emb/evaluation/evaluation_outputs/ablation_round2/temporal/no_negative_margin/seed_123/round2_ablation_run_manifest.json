@@ -1,0 +1,10 @@
+{
+  "split": "temporal",
+  "ablation_variant": "no_negative_margin",
+  "embedding_seed": 123,
+  "downstream_seed": 123,
+  "base_config": "paper",
+  "basin2vec_parquet": "embeddings_ablation_round2/Basin2Vec_paper_no_negative_margin/seed_123/basin_embeddings.parquet",
+  "output_dir": "downstream_ablation_round2/temporal/no_negative_margin/seed_123",
+  "created_time": "2026-08-13 23:44:55"
+}

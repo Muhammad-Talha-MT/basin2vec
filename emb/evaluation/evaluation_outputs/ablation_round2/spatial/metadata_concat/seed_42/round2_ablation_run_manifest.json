@@ -1,0 +1,10 @@
+{
+  "split": "spatial",
+  "ablation_variant": "metadata_concat",
+  "embedding_seed": 42,
+  "downstream_seed": 42,
+  "base_config": "paper",
+  "basin2vec_parquet": "embeddings_ablation_round2/Basin2Vec_paper_metadata_concat/seed_42/basin_embeddings.parquet",
+  "output_dir": "downstream_ablation_round2/spatial/metadata_concat/seed_42",
+  "created_time": "2026-08-16 04:02:45"
+}
