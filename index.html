@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101b23">
+  <meta name="description" content="An interactive atlas of 9,067 US river basins. Explore 64-dimensional Basin2Vec embeddings, find similar watersheds, and follow change across 40 years.">
+  <title>Basin2Vec · Basin Atlas</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="vendor/leaflet.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <a class="brand" href="./" aria-label="Basin2Vec home"><span>Basin<span class="brand-number">2</span>Vec<span class="brand-sub">BASIN ATLAS</span></span></a>
+    <nav aria-label="Main navigation"><span class="nav-active">Explore</span><button id="about">About the data <span>↗</span></button></nav>
+    <div class="header-end"><span class="dataset-tag"><i></i> PRETRAINED · 64D</span><button class="outline-button" id="export" disabled>↓ <span>Export results</span></button></div>
+  </header>
+  <section class="intro"><div><div class="eyebrow">A NEW PERSPECTIVE ON WATERSHEDS</div><h1>Different places. Shared signatures.</h1><p>Explore the learned landscape of US river basins.</p></div><div class="stats"><div><strong>9,067</strong><span>river basins</span></div><div><strong>40<span> yrs</span></strong><span>1985–2024</span></div><div><strong>64</strong><span>dimensions</span></div></div></section>
+  <main>
+    <section class="map-shell" aria-label="Interactive basin map">
+      <div id="map" aria-label="Map of contiguous US basin embeddings"></div>
+      <div class="map-top"><div class="search-wrap"><span class="search-icon">⌕</span><input id="search" type="search" placeholder="Search a river, state, or USGS ID" aria-label="Search basins" autocomplete="off" aria-controls="search-results" aria-expanded="false"><kbd>/</kbd><div id="search-results" class="search-results" hidden></div></div><button id="reset-map" class="map-button" title="Fit contiguous US" aria-label="Fit contiguous US">⌖</button></div>
+      <div class="layer-panel">
+        <div class="control-label">MAP VIEW</div>
+        <div class="segmented" id="modes" aria-label="Map visualization"><button data-mode="embedding" class="active" aria-pressed="true">Embeddings</button><button data-mode="similarity" aria-pressed="false">Similarity</button><button data-mode="change" aria-pressed="false">Change</button></div>
+        <label class="select-label" for="space">Representation <span>64 dimensions</span></label>
+        <select id="space"><option value="embeddings">Projection embeddings · z</option><option value="hydrologic_repr">Hydrologic representation · h</option></select>
+        <div class="layer-toggles"><label><input id="outlines" type="checkbox" checked> Boundaries</label><label><input id="gauges" type="checkbox"> Gauge points</label></div>
+      </div>
+      <div class="map-region">CONUS <span> / </span> GAGES-II BASINS</div>
+      <div id="legend" class="legend"></div>
+      <div id="overlap-picker" class="overlap-picker" hidden></div>
+      <div class="time-panel"><div class="time-title"><span class="control-label">TIME WINDOW</span><button id="mean" class="active" aria-pressed="true">40-year mean</button><strong id="year-label">1985–2024</strong></div><div class="slider-row"><span>1985</span><input id="year" type="range" min="1985" max="2024" value="2024" step="1" aria-label="Annual embedding year"><span>2024</span></div><p id="time-help">Drag the timeline to explore an individual year.</p></div>
+      <div id="loading" class="loading"><span class="spinner"></span><strong>Loading the basin landscape</strong><span>Preparing boundaries and embeddings…</span></div>
+      <div id="map-tooltip" class="map-tooltip" hidden></div>
+    </section>
+    <aside class="inspector" aria-label="Basin details">
+      <div class="inspector-scroll">
+        <div id="selection"></div>
+        <div id="tab-bar" class="tabs" role="tablist" aria-label="Basin insights"><button data-tab="neighbors" class="active" role="tab" aria-selected="true">Similar basins</button><button data-tab="signature" role="tab" aria-selected="false">Signature</button><button data-tab="overlaps" role="tab" aria-selected="false">Overlaps</button></div>
+        <div id="details" role="tabpanel"></div>
+        <section class="embedding-space"><div class="section-heading"><h2>Embedding space</h2><span class="mini-badge">PCA</span></div><p>Nearby points have similar projected signatures.</p><div class="scatter-wrap"><canvas id="scatter" tabindex="0" aria-label="Two-dimensional PCA projection of all basins. Click a point to select; basin search provides a keyboard-accessible alternative."></canvas><span class="axis-y">PC 2</span><span class="axis-x">PC 1 →</span></div><div class="scatter-caption"><span id="variance"></span><span>Click to explore ↗</span></div></section>
+      </div>
+      <div class="inspector-footer"><span class="status-dot"></span><span id="ready-status" role="status" aria-live="polite">Connecting to basin data</span></div>
+    </aside>
+  </main>
+  <footer class="footer"><span>Basin2Vec <span class="muted">/</span> A learned view of our watersheds</span><span>CONUS coverage · GAGES-II boundaries <span class="muted">|</span> <a href="data/provenance.json" target="_blank" rel="noopener">Data provenance ↗</a></span></footer>
+  <div id="toast" role="status" aria-live="polite" hidden></div>
+  <dialog id="about-dialog"><button id="close-about" class="dialog-close" aria-label="Close about dialog">×</button><div class="eyebrow">BEHIND THE LANDSCAPE</div><h2>A basin is more than its location.</h2><p>Basin2Vec encodes climate, land cover, soil, terrain, and population into a 64-dimensional representation. This atlas loads the full pretrained vectors for all <strong>9,067 basins</strong> and <strong>40 years, 1985–2024</strong>.</p><h3>Read the map</h3><p><strong>Embeddings</strong> use the first three principal components as RGB color. A fixed PCA basis keeps colors comparable across years within a representation. PCA is a visual summary, not the similarity metric.</p><p><strong>Similarity</strong> is cosine similarity in all 64 dimensions, from −1 to +1. The map stretches the 5th–95th percentiles for contrast; the legend shows the actual range and rankings always report raw cosine scores. The selected basin is excluded from its own neighbors.</p><p><strong>Change</strong> is 1 − cosine(1985, 2024). It measures a change in the learned representation, not a measured environmental trend or a causal attribution.</p><h3>Two spaces, one dataset</h3><p><strong>Projection · z</strong> is the final contrastive embedding, also distributed in the public Python package. <strong>Hydrologic · h</strong> is the representation before projection. Each period mean is computed independently in its own space and L2-normalized.</p><h3>Nested and overlapping basins</h3><p>A map click checks every display polygon at that location and lists all hits, smallest first. Smaller basins are drawn above larger ones. The Overlaps tab shows recorded strong overlaps: intersection area divided by the smaller basin’s area, calculated in EPSG:5070. A score near 1 suggests near containment. Missing links do not prove that basins are disjoint.</p><h3>Coverage and precision</h3><p>This dataset covers the <strong>contiguous United States</strong>; it does not include Alaska, Hawaii, or territories. Boundaries are simplified for display, so edge selection is approximate. Station names and regions come from GAGES-II. Vectors retain float32 precision and load by year. No synthetic basins or embeddings are used.</p><div class="dialog-links"><a href="data/provenance.json" target="_blank" rel="noopener">Export provenance ↗</a><a href="https://github.com/Muhammad-Talha-MT/basin2vec" target="_blank" rel="noopener">Basin2Vec repository ↗</a><a href="https://earthengine-ai.projects.earthengine.app/view/embedding-similarity-search#year=2025;" target="_blank" rel="noopener">Inspired by AlphaEarth ↗</a></div></dialog>
+  <script src="vendor/leaflet.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
