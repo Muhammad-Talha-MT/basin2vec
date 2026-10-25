@@ -1,0 +1,1 @@
+{"name":"basin2vec-atlas","private":true,"type":"module","scripts":{"check":"node --check dist/app.js && node --check dist/worker.js && node --test tests/math.test.js","start":"python -m http.server 4173 --directory dist"}}

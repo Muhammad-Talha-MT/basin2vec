@@ -1,0 +1,10 @@
+__pycache__/
+.pytest_cache/
+node_modules/
+.DS_Store
+*.log
+.env*
+qa-artifacts/
+# Generated full-data payload is packaged into the deployment archive, but the
+# source repository retains only the reproducible exporter and application.
+dist/data/

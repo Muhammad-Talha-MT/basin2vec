@@ -492,6 +492,21 @@ next to it.
 
 ## Exploration app
 
+The new [Basin Atlas](sites/basin-atlas/README.md) is a standalone website with
+all 9,067 CONUS basin boundaries, both full 64D representation spaces, annual
+views, overlap-aware selection, similarity rankings, PCA views, representation
+change, and CSV/JSON export. Its prepared dataset is served as static assets:
+
+```bash
+python -m http.server 4173 --directory sites/basin-atlas/dist
+```
+
+Open <http://localhost:4173>. See the Atlas README for reproducible data export,
+scientific interpretation, and browser/numerical checks. The complete dataset
+currently covers the contiguous US; Alaska, Hawaii, and territories are excluded.
+
+The earlier FastAPI explorer remains available:
+
 ```bash
 python app/geojson.py      # once: simplify GAGES-II polygons into basins.geojson
 cd app && uvicorn app:app --host 0.0.0.0 --port 8000
