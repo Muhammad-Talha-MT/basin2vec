@@ -76,6 +76,12 @@ basin_embeddings_full.npz
 **/*_counts.csv
 **/*_year_coverage_*.csv
 **/*metrics_horizon1.csv
+# Round-2 ablation spatial medians are pooled from these per-basin files.
+!emb/evaluation/evaluation_outputs/ablation_round2/spatial/**/test_per_basin_metrics_horizon1.csv
+# Per-basin metrics and figure inputs behind the paper's Figs. 5 and 6 (shipped results only).
+!emb/evaluation/evaluation_outputs/final_*_split_results/**/*per_basin_metrics_horizon1.csv
+!emb/evaluation/evaluation_outputs/final_*_split_results/cdf_figures/
+!emb/evaluation/evaluation_outputs/final_*_split_results/area_class_plots/
 **/*predictions_horizon1.csv
 **/predictions*.csv
 **/test_predictions*.csv

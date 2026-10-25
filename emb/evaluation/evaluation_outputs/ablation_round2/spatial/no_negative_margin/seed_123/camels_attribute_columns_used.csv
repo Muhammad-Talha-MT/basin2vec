@@ -1,0 +1,13 @@
+attribute
+elev_mean
+clay_frac
+silt_frac
+sand_frac
+soil_depth_pelletier
+soil_depth_statsgo
+soil_porosity
+soil_conductivity
+geol_permeability
+frac_forest
+dom_land_cover_frac
+dom_land_cover

@@ -1,0 +1,22 @@
+{
+  "root": ".",
+  "variants": [
+    "instance_contrastive",
+    "meta_as_positive",
+    "metadata_concat",
+    "no_metadata_encoder",
+    "no_meta_denominator",
+    "no_monthly_branch",
+    "no_negative_margin",
+    "no_static_branch"
+  ],
+  "seeds": [
+    42,
+    123,
+    456
+  ],
+  "statistical_unit_across_runs": "Each seed is an independent pretrained Basin2Vec checkpoint and uses the same numeric seed for downstream LSTM initialization.",
+  "temporal_primary": "Median NSE/KGE across temporal evaluation basins for each seed; then mean \u00b1 sample standard deviation across seeds.",
+  "spatial_foldmean": "Matches the supplied spatial evaluator's KFOLD_AGGREGATED output: mean of the six outer-fold median basin metrics within each seed; then mean \u00b1 sample standard deviation across seeds.",
+  "spatial_pooled": "Additional audit statistic: pool each basin's outer-fold test metric exactly once and take the median across all held-out basins."
+}

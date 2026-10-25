@@ -1,0 +1,10 @@
+{
+  "split": "spatial",
+  "ablation_variant": "no_meta_denominator",
+  "embedding_seed": 456,
+  "downstream_seed": 456,
+  "base_config": "paper",
+  "basin2vec_parquet": "embeddings_ablation_round2/Basin2Vec_paper_no_meta_denominator/seed_456/basin_embeddings.parquet",
+  "output_dir": "downstream_ablation_round2/spatial/no_meta_denominator/seed_456",
+  "created_time": "2026-08-18 03:43:16"
+}

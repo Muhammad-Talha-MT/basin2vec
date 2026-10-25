@@ -1,0 +1,53 @@
+{
+  "variant": {
+    "name": "no_metadata_encoder",
+    "description": "Remove metadata encoder/fusion from representation; retain metadata only inside relation-aware SSL loss to isolate encoder contribution",
+    "use_monthly_branch": true,
+    "use_static_branch": true,
+    "metadata_fusion": "none",
+    "use_area_head": true,
+    "temporal_weight": 0.35,
+    "overlap_weight": 0.12,
+    "use_meta_denominator": true,
+    "meta_positive_weight": 0.0,
+    "meta_positive_threshold": null,
+    "neg_weight": 0.05,
+    "area_aux_weight": 0.05,
+    "temperature": 0.15,
+    "year_tau": 8.0,
+    "meta_tau": 1.5,
+    "min_negative_weight": 0.2,
+    "neg_margin_low": 0.2,
+    "neg_margin_high": 0.6
+  },
+  "base_config": "paper",
+  "seed": 42,
+  "epochs": 8,
+  "batch": {
+    "basins_per_batch": 24,
+    "years_per_basin": 2,
+    "local_batch_size": 48,
+    "world_size": 4
+  },
+  "optimizer": {
+    "lr": 0.0002,
+    "weight_decay": 0.0001,
+    "grad_clip_norm": 1.0
+  },
+  "runtime": {
+    "num_workers": 8,
+    "find_unused_parameters": false,
+    "detect_anomaly": false
+  },
+  "augmentation": {
+    "monthly_noise_std": 0.03,
+    "static_noise_std": 0.02,
+    "spatial_dropout_p": 0.03,
+    "month_dropout_p": 0.08,
+    "variable_dropout_p": 0.02,
+    "monthly_scale_std": 0.04,
+    "cropping": false,
+    "rotation": false,
+    "month_permutation": false
+  }
+}

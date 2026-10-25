@@ -1,0 +1,2 @@
+median_NSE,mean_NSE,median_KGE,mean_KGE,median_RMSE,mean_RMSE,median_MAE,mean_MAE,median_Pearson_r,mean_Pearson_r,n_basins,n_basins_valid_NSE,n_basins_valid_KGE,seed,static_source,seq_len,horizon,best_epoch,best_val_loss,static_dim,n_train_samples,n_eval_samples
+0.6031077986127347,-7.690621963245929,0.5775150742416832,-0.3628891274961261,137.47929547533872,252.3624854945017,58.491359505961526,109.85053737265645,0.8501783333317565,0.8110095392399078,669,669,669,42,kgssl_unsupervised,365,1,8,0.11980761207383928,64,4654764,1158331
